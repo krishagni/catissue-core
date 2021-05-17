@@ -2,40 +2,56 @@
 angular.module('os.administrative.user.detail')
   .directive('osVueComponent', function($timeout) {
     return {
-      restrict: 'A',
+      restrict: 'EA',
 
       scope: {
+        component: '=',
+
         data: '='
       },
 
       link: function(scope, element, attrs) {
         const app = Vue.createApp({ 
-          template: '<div> Hello from Vue3 {{input}} <button @click="toggle">Toggle</button> </div> ',
+          template: '<component :is="component" v-bind="input"> </component>',
 
-          data() {
+          data: function() {
             return {
+              component: scope.component,
+
               input: scope.data
+
             }
           },
 
           methods: {
-            toggle: function() {
-              var that = this;
+          },
 
-              $timeout(
-                function() {
-                  that.input.activityStatus = that.input.activityStatus == 'Active' ? 'Closed' : 'Active';
-                }
-              );
+          watch: {
+            input: function() {
+              alert('changed');
             }
+          },
+
+          mounted: function() {
+            console.log(this.input);
+          },
+
+          unmounted: function() {
+            alert('destroyed');
           }
         });
 
-        var vm = app.mount(element[0]);
-        /*vm.input = scope.data;*/
+        // dynamic
+        app.component('user-list', UserList);
 
-        scope.$watch('data', function() {
-          vm.input = scope.data;
+        var vm = app.mount(element[0]);
+        scope.$watch('data', function(newVal) {
+          vm.input = angular.extend({}, newVal);
+        }, true);
+
+        scope.$on('$destroy', function() {
+          alert('unmount');
+          app.unmount();
         });
       }
     }

@@ -1,7 +1,7 @@
 
 angular.module('os.administrative.user.list', ['os.administrative.models'])
   .controller('UserListCtrl', function(
-    $scope, $state, $modal, $translate, currentUser, group,
+    $scope, $state, $stateParams, $modal, $translate, $sce, currentUser, group,
     osRightDrawerSvc, osExportSvc, User, ItemsHolder, PvManager,
     Util, DeleteUtil, CheckList, Alerts, ListPagerOpts, UserGroup) {
 
@@ -11,6 +11,7 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
     function init() {
       pagerOpts = $scope.pagerOpts = new ListPagerOpts({listSizeGetter: getUsersCount});
       ctx = $scope.ctx = {
+        vue: $stateParams.vue == 'true',
         exportDetail: {objectType: 'user'},
         group: group,
         emptyState: {
@@ -20,6 +21,17 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
           loadingMessage: 'user.loading_list'
         }
       };
+
+      if (ctx.vue) {
+        var url = 'http://localhost:8081/#/';
+        if ($stateParams.view == 'users-list') {
+          url += 'users';
+        } else if ($stateParams.view == 'user-addedit') {
+          url += 'user-addedit/777';
+        }
+
+        ctx.vueUrl = $sce.trustAsResourceUrl(url);
+      }
 
       initPvsAndFilterOpts();
       loadUsers($scope.userFilterOpts);

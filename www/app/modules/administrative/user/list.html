@@ -1,5 +1,12 @@
 
-<div>
+<div ng-if="ctx.vue">
+  <div style="position: absolute; top: 40px; height: calc(100% - 40px); width: 100%">
+    <iframe src="{{ctx.vueUrl}}" width="100%" height="100%" margin-height="0" margin-width="0"></iframe>
+  </div>
+
+</div>
+
+<div ng-if="!ctx.vue">
   <div os-page-header>
     <div class="os-page-header-content">
       <ul os-breadcrumbs ng-if="!!ctx.group">
@@ -288,4 +295,21 @@
       </ul>
     </div>
   </div>
+</script>
+
+<script type="text/vue-template" id="modules/administrative/user/tab.html">
+  <table class="os-table">
+    <thead class="os-table-head">
+      <tr>
+        <th>Name</th>
+        <th>Email Address</th>
+      </tr>
+    </thead>
+    <tbody class="os-table-body">
+      <tr class="row" v-for="user in users" :key="user.id">
+        <td class="col">{{user.firstName}} {{user.lastName}}</td>
+        <td class="col">{{user.emailAddress}}</td>
+      </tr>
+    </tbody>
+  </table>
 </script>
