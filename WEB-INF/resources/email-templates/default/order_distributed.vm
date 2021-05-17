@@ -19,7 +19,7 @@
                   #end
                   <br><br>
                   A brief description of the order:
-                  <br><br>
+                  <br>
                 </p>
               </td>
             </tr>
@@ -82,7 +82,7 @@
               </td>
             </tr>
             <tr>
-              <td style="height:5px;line-height:5px;">&nbsp;</td>
+              <br>
             </tr>
             <tr>
               <td style="border-collapse:collapse;padding-bottom:10px">

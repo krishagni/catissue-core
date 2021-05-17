@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.administrative.services.impl;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -261,7 +262,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 				return ResponseEvent.userError(DistributionOrderErrorCode.RPT_TMPL_NOT_CONFIGURED, order.getDistributionProtocol().getShortTitle());
 			}
 			
-			return new ResponseEvent<>(exportReport(order, query));
+			return new ResponseEvent<>(exportReport(order, query, false));
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
 		} catch (Exception e) {
@@ -1255,18 +1256,19 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		return deDaoFactory.getSavedQueryDao().getQuery(queryId.longValue());
 	}
 
-	private QueryDataExportResult exportReport(final DistributionOrder order, SavedQuery report) {
+	private QueryDataExportResult exportReport(final DistributionOrder order, SavedQuery report, boolean waitForCompletion) {
 		Filter filter = new Filter();
 		filter.setField("Specimen.specimenOrders.id");
 		filter.setOp(Op.EQ);
 		filter.setValues(new String[] { order.getId().toString() });
 		
-		ExecuteQueryEventOp execReportOp = new ExecuteQueryEventOp();
-		execReportOp.setDrivingForm("Participant");
-		execReportOp.setAql(report.getAql(new Filter[] { filter }));			
-		execReportOp.setWideRowMode(WideRowMode.DEEP.name());
-		execReportOp.setRunType("Export");
-		return querySvc.exportQueryData(execReportOp, new QueryService.ExportProcessor() {
+		ExecuteQueryEventOp queryOp = new ExecuteQueryEventOp();
+		queryOp.setDrivingForm("Participant");
+		queryOp.setAql(report.getAql(new Filter[] { filter }));
+		queryOp.setWideRowMode(WideRowMode.DEEP.name());
+		queryOp.setRunType("Export");
+		queryOp.setSynchronous(waitForCompletion);
+		return querySvc.exportQueryData(queryOp, new QueryService.ExportProcessor() {
 			@Override
 			public String filename() {
 				return "order_" + order.getId() + "_" + UUID.randomUUID().toString();
@@ -1340,16 +1342,24 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		Object[] subjectParams = {order.getId(), order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2};
+		File[] attachments = null;
 		if (!Boolean.TRUE.equals(order.getDistributionProtocol().getDisableEmailNotifs())) {
-			//
-			// Send email notification
-			//
 			Map<String, Object> emailProps = new HashMap<>();
 			emailProps.put("$subject", subjectParams);
 			emailProps.put("order", order);
+
+			if (newStatus.equals(Status.EXECUTED)) {
+				attachments = getOrderReportAttachment(order);
+				String name = (attachments != null && attachments.length > 0) ? attachments[0].getName() : null;
+				emailProps.put("$attachments", Collections.singletonMap(name, order.getName() + ".csv"));
+			}
+
+			//
+			// Send email notification
+			//
 			for (User rcpt : rcpts) {
 				emailProps.put("rcpt", rcpt);
-				emailService.sendEmail(ORDER_DISTRIBUTED_EMAIL_TMPL, new String[] { rcpt.getEmailAddress() }, null, emailProps);
+				emailService.sendEmail(ORDER_DISTRIBUTED_EMAIL_TMPL, new String[] { rcpt.getEmailAddress() }, attachments, emailProps);
 			}
 		}
 
@@ -1363,6 +1373,27 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		notif.setCreationTime(Calendar.getInstance().getTime());
 		notif.setMessage(msg);
 		NotifUtil.getInstance().notify(notif, Collections.singletonMap("order-overview", rcpts));
+	}
+
+	private File[] getOrderReportAttachment(DistributionOrder order) {
+		SavedQuery query = getReportQuery(order);
+		if (query == null) {
+			return null;
+		}
+
+		QueryDataExportResult result = exportReport(order, query, true);
+		if (!result.isCompleted() || StringUtils.isBlank(result.getDataFile())) {
+			return null;
+		}
+
+		File dataFile = result.getDataFileHandle();
+		if (dataFile.length() > 1024 * 1024) { // 1 MB
+			String zipPath = new File(dataFile.getParentFile(), dataFile.getName() + ".zip").getAbsolutePath();
+			File zipFile = Utility.zipFiles(Collections.singletonList(dataFile.getAbsolutePath()), zipPath);
+			return new File[] { zipFile };
+		} else {
+			return new File[] { dataFile };
+		}
 	}
 
 	private void notifyFailedOrder(ResponseEvent<?> resp) {

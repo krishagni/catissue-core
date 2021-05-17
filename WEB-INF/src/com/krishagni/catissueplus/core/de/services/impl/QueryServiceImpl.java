@@ -1606,7 +1606,7 @@ public class QueryServiceImpl implements QueryService {
 			task.filename = getExportFilename(op, procFn == null ? proc : null);
 			task.query = getQuery(op);
 			task.procFn = procFn;
-			task.fout = new FileOutputStream(getExportDataDir() + File.separator + task.filename);
+			task.fout = new FileOutputStream(new File(getExportDataDir(), task.filename));
 			out = task.fout;
 
 			if (procFn == null) {

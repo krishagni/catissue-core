@@ -378,9 +378,14 @@ public class EmailServiceImpl implements EmailService, ConfigChangeListener, Ini
 		}
 
 		if (mail.getAttachments() != null) {
+			Map<String, String> names = Collections.emptyMap();
+			if (props != null && props.get("$attachments") instanceof Map) {
+				names = (Map<String, String>) props.get("$attachments");
+			}
+
 			for (File attachment: mail.getAttachments()) {
-				FileSystemResource file = new FileSystemResource(attachment);
-				message.addAttachment(file.getFilename(), file);
+				String filename = names.getOrDefault(attachment.getName(), attachment.getName());
+				message.addAttachment(filename, new FileSystemResource(attachment));
 			}
 		}
 
