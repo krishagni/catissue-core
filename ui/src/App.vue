@@ -2,6 +2,22 @@
   <router-view/>
 </template>
 
+<script>
+import http from '@/services/HttpClient.js';
+
+export default {
+  name: 'App',
+
+  setup() {
+    http.protocol = 'http';
+    http.host = 'localhost';
+    http.port = 8080;
+    http.path = 'openspecimen/rest/ng';
+    http.headers['X-OS-API-TOKEN'] = localStorage.getItem('osAuthToken');
+  }
+}
+</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
