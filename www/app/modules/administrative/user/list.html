@@ -296,20 +296,3 @@
     </div>
   </div>
 </script>
-
-<script type="text/vue-template" id="modules/administrative/user/tab.html">
-  <table class="os-table">
-    <thead class="os-table-head">
-      <tr>
-        <th>Name</th>
-        <th>Email Address</th>
-      </tr>
-    </thead>
-    <tbody class="os-table-body">
-      <tr class="row" v-for="user in users" :key="user.id">
-        <td class="col">{{user.firstName}} {{user.lastName}}</td>
-        <td class="col">{{user.emailAddress}}</td>
-      </tr>
-    </tbody>
-  </table>
-</script>
