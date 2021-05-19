@@ -1,44 +1,79 @@
 <template>
-  <div>
-    <h3> Users List View </h3>
-    <div>
-      <table class="os-table">
-        <thead class="os-table-head">
-          <tr class="row">
-            <th class="col">Name</th>
-            <th class="col">Email Address</th>
-            <th class="col">Login Name</th>
-            <th class="col">Active Since</th>
-          </tr>
-        </thead> 
-        <tbody class="os-table-body">
-          <tr class="row" v-for="user in ctx.users" :key="user.id">
-            <td>{{user.firstName}} {{user.lastName}}</td>
-            <td>{{user.emailAddress}}</td>
-            <td>{{user.loginName}}</td>
-            <td>{{user.creationDate}}</td>
-          </tr>
-        </tbody>
-      </table>
-      {{ctx.users.length}} users
-    </div>
-  </div>
+  <Page>
+    <PageHeader>
+      <template #default>
+        <h3>Users</h3>
+      </template>
+    </PageHeader>
+    <PageBody>
+      <ListView :data="ctx.users" :columns="ctx.columns"></ListView>
+    </PageBody>
+  </Page>
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, inject } from 'vue';
+import { format } from 'date-fns';
 
+import ListView from '@/components/ListView.vue';
+import Page from '@/components/Page.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import PageBody from '@/components/PageBody.vue';
 import http from '@/services/HttpClient.js';
 
 export default {
   name: 'UsersList',
 
+  inject: ['ui'],
+
   components: {
+    Page,
+    PageHeader,
+    PageBody,
+    ListView,
   },
 
   setup() {
+    const ui = inject('ui');
+
     let ctx = reactive({
-      users: []
+      users: [],
+
+      columns: [
+        {
+          name: 'name',
+          caption: 'Name',
+          value: function(user) {
+            return user.firstName + ' ' + user.lastName;
+          }
+        },
+        {
+          name: 'emailAddress',
+          caption: 'Email Address'
+        },
+        {
+          name: 'loginName',
+          caption: 'Login Name'
+        },
+        {
+          name: 'instituteName',
+          caption: 'Institute'
+        },
+        {
+          name: 'primarySite',
+          caption: 'Primary Site'
+        },
+        {
+          name: 'activeSince',
+          caption: 'Active Since',
+          value: function(user) {
+            if (user.creationDate) {
+              return format(new Date(user.creationDate), ui.os.global.dateFmt);
+            }
+            return undefined;
+          }
+        }
+      ]
     });
 
     http.get('users').then(resp => ctx.users = resp);

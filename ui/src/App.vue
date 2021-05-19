@@ -19,12 +19,22 @@ export default {
 </script>
 
 <style>
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0px;
+  height: calc(100% - 15px);
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333333;
+  background-color: #fff;
+  height: 100%;
 }
 
 #nav {

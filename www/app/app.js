@@ -420,6 +420,15 @@ osApp.config(function(
       impersonate: !!$cookies['osImpersonateUser']
     };
 
+    window.addEventListener('message', function(event) {
+      var data = event.data;
+      if (data.op == 'getGlobalProps') {
+        window.frames['vueapp'].postMessage({op: 'getGlobalProps', resp: ui}, '*');
+      } else if (data.op == 'getAuthToken') {
+        window.frames['vueapp'].postMessage({op: 'getAuthToken', resp: $window.localStorage['osAuthToken']}, '*');
+      }
+    });
+
     Setting.getLocale().then(
       function(localeSettings) {
         angular.extend(
