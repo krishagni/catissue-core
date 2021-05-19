@@ -752,6 +752,7 @@
     <property name="taskExecutor"        ref="taskExecutor"/>
     <property name="labelPrinter"        ref="defaultDistributionLabelPrinter"/>
     <property name="listSvc"             ref="listSvc"/>
+    <property name="manifestGeneratorFactory" ref="manifestGeneratorFactory"/>
     <property name="validators">
       <list>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionConsentValidator">
@@ -761,9 +762,12 @@
     </property>
   </bean>
   
-  <bean id="dpRequirementFactory"
-      class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DpRequirementFactoryImpl">
+  <bean id="dpRequirementFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.DpRequirementFactoryImpl">
     <property name="daoFactory" ref="biospecimenDaoFactory" />
+  </bean>
+
+  <bean id="manifestGeneratorFactory" class="com.krishagni.catissueplus.core.common.service.impl.ManifestGeneratorFactoryImpl">
+
   </bean>
   
   <bean id="scheduledJobFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ScheduledJobFactoryImpl">

@@ -36,6 +36,8 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 
 	private Boolean disableEmailNotifs;
 
+	private String attachmentType;
+
 	private String orderItemLabelFormat;
 
 	private Map<String, List<String>> distributingSites = new HashMap<>();
@@ -96,6 +98,14 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 
 	public void setDisableEmailNotifs(Boolean disableEmailNotifs) {
 		this.disableEmailNotifs = disableEmailNotifs;
+	}
+
+	public String getAttachmentType() {
+		return attachmentType;
+	}
+
+	public void setAttachmentType(String attachmentType) {
+		this.attachmentType = attachmentType;
 	}
 
 	public String getOrderItemLabelFormat() {
@@ -159,6 +169,7 @@ public class DistributionProtocolDetail extends DistributionProtocolSummary {
 		detail.setCoordinators(UserSummary.from(dp.getCoordinators()));
 		detail.setActivityStatus(dp.getActivityStatus());
 		detail.setDisableEmailNotifs(dp.getDisableEmailNotifs());
+		detail.setAttachmentType(dp.getAttachmentType() != null ? dp.getAttachmentType().name() : null);
 		detail.setOrderItemLabelFormat(dp.getOrderItemLabelFormat());
 
 		if (dp.getReport() != null) {

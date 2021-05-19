@@ -67,7 +67,7 @@ public class PickDistributedSpecimensNotification implements ScheduledTask {
 	}
 
 	private void notifyRequestor(DistributionOrder order) {
-		if (Boolean.TRUE.equals(order.getDistributionProtocol().getDisableEmailNotifs())) {
+		if (order.getDistributionProtocol().areEmailNotifsDisabled()) {
 			return;
 		}
 

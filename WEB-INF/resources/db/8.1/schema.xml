@@ -90,4 +90,10 @@
     <addUniqueConstraint constraintName="OS_QFOLDER_SHARED_GRPS_UQ"
       tableName="OS_QUERY_FOLDER_SHARED_GROUPS" columnNames="FOLDER_ID,GROUP_ID"/>
   </changeSet>
+
+  <changeSet author="vpawar" id="Order processed notification email attachment type">
+    <addColumn tableName="CATISSUE_DISTRIBUTION_PROTOCOL">
+      <column name="ATTACHMENT_TYPE" type="${text.type}(16)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

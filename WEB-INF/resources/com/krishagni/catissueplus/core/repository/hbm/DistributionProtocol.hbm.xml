@@ -40,6 +40,13 @@
 
     <property name="disableEmailNotifs" column="DISABLE_EMAIL_NOTIFS"/>
 
+    <property name="attachmentType" column="ATTACHMENT_TYPE">
+      <type name="org.hibernate.type.EnumType">
+        <param name="enumClass">com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol$NotifAttachmentType</param>
+        <param name="type">12</param>
+      </type>
+    </property>
+
     <property name="orderItemLabelFormat" column="ORDER_ITEM_LABEL_FORMAT"/>
 
     <set name="distributionOrders" cascade="none">

@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.administrative.services.impl;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +84,8 @@ import com.krishagni.catissueplus.core.common.events.ResponseEvent;
 import com.krishagni.catissueplus.core.common.events.UserSummary;
 import com.krishagni.catissueplus.core.common.service.EmailService;
 import com.krishagni.catissueplus.core.common.service.LabelPrinter;
+import com.krishagni.catissueplus.core.common.service.ManifestGenerator;
+import com.krishagni.catissueplus.core.common.service.ManifestGeneratorFactory;
 import com.krishagni.catissueplus.core.common.service.ObjectAccessor;
 import com.krishagni.catissueplus.core.common.util.AuthUtil;
 import com.krishagni.catissueplus.core.common.util.ConfigUtil;
@@ -109,6 +114,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	private static final long ASYNC_CALL_TIMEOUT = 5000L;
 
+	private static final String ORDER_MANIFEST = "order_manifest";
+
 	private DaoFactory daoFactory;
 
 	private DistributionOrderFactory distributionFactory;
@@ -128,6 +135,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 	private LabelPrinter<DistributionOrderItem> labelPrinter;
 
 	private ListService listSvc;
+
+	private ManifestGeneratorFactory manifestGeneratorFactory;
 
 	public void setDaoFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
@@ -175,6 +184,10 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 
 	public void setListSvc(ListService listSvc) {
 		this.listSvc = listSvc;
+	}
+
+	public void setManifestGeneratorFactory(ManifestGeneratorFactory manifestGeneratorFactory) {
+		this.manifestGeneratorFactory = manifestGeneratorFactory;
 	}
 
 	@Override
@@ -1320,7 +1333,8 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		return MessageUtil.getInstance().getMessage(code);
 	}
 	
-	private void notifySaveOrUpdateOrder(DistributionOrder order, Status oldStatus, Long startTime) {
+	private void notifySaveOrUpdateOrder(DistributionOrder order, Status oldStatus, Long startTime)
+	throws UnsupportedEncodingException {
 		long timeTaken = (System.currentTimeMillis() - startTime) + 500;
 
 		Status newStatus = order.getStatus();
@@ -1342,21 +1356,24 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		}
 
 		Object[] subjectParams = {order.getId(), order.getName(), newStatus.equals(Status.EXECUTED) ? 1 : 2};
-		File[] attachments = null;
-		if (!Boolean.TRUE.equals(order.getDistributionProtocol().getDisableEmailNotifs())) {
+		if (!order.getDistributionProtocol().areEmailNotifsDisabled()) {
 			Map<String, Object> emailProps = new HashMap<>();
 			emailProps.put("$subject", subjectParams);
 			emailProps.put("order", order);
 
+			Pair<String, File> attachment = null;
 			if (newStatus.equals(Status.EXECUTED)) {
-				attachments = getOrderReportAttachment(order);
-				String name = (attachments != null && attachments.length > 0) ? attachments[0].getName() : null;
-				emailProps.put("$attachments", Collections.singletonMap(name, order.getName() + ".csv"));
+				attachment = getOrderReportAttachment(order);
+
+				String name = (attachment != null) ? attachment.second().getName() : null;
+				String extn = (attachment != null) ? "." + attachment.first() : "";
+				emailProps.put("$attachments", Collections.singletonMap(name, order.getName() + extn));
 			}
 
 			//
 			// Send email notification
 			//
+			File[] attachments = attachment != null ? new File[] { attachment.second() } : null;
 			for (User rcpt : rcpts) {
 				emailProps.put("rcpt", rcpt);
 				emailService.sendEmail(ORDER_DISTRIBUTED_EMAIL_TMPL, new String[] { rcpt.getEmailAddress() }, attachments, emailProps);
@@ -1375,7 +1392,73 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 		NotifUtil.getInstance().notify(notif, Collections.singletonMap("order-overview", rcpts));
 	}
 
-	private File[] getOrderReportAttachment(DistributionOrder order) {
+	private Pair<String, File> getOrderReportAttachment(DistributionOrder order)
+	throws UnsupportedEncodingException {
+		DistributionProtocol.NotifAttachmentType attachType = order.getDistributionProtocol().getAttachmentType();
+		if (attachType == null) {
+			String attachTypeStr = ConfigUtil.getInstance().getStrSetting("administrative", "order_attachment_type", "none");
+			attachType = DistributionProtocol.NotifAttachmentType.valueOf(attachTypeStr.toUpperCase());
+		}
+
+		if (attachType == DistributionProtocol.NotifAttachmentType.NONE) {
+			return null;
+		}
+
+		switch (attachType) {
+			case CSV_REPORT:
+				File dataFile = getCsvReport(order);
+				if (dataFile == null) {
+					return null;
+				}
+
+				if (isFileLargerThan1MB(dataFile)) {
+					String name = MimeUtility.encodeText(order.getName() + ".csv");
+					return Pair.make("zip", zipFile(name, dataFile));
+				} else {
+					return Pair.make("csv", dataFile);
+				}
+
+			case MANIFEST:
+				File manifest = getManifest(order);
+				if (manifest == null) {
+					return null;
+				}
+
+				if (isFileLargerThan1MB(manifest)) {
+					String name = MimeUtility.encodeText(order.getName() + ".pdf");
+					return Pair.make("zip", zipFile(name, manifest));
+				} else {
+					return Pair.make("pdf", manifest);
+				}
+
+			case BOTH:
+				List<Pair<String, String>> inputFiles = new ArrayList<>();
+				String zipPath = null;
+
+				File csvFile = getCsvReport(order);
+				if (csvFile != null) {
+					String name = MimeUtility.encodeText(order.getName() + ".csv");
+					inputFiles.add(Pair.make(csvFile.getAbsolutePath(), name));
+					zipPath = csvFile.getParent();
+				}
+
+				File pdfFile = getManifest(order);
+				if (pdfFile != null) {
+					String name = MimeUtility.encodeText(order.getName() + ".pdf");
+					inputFiles.add(Pair.make(pdfFile.getAbsolutePath(), name));
+					zipPath = pdfFile.getParent();
+				}
+
+				if (!inputFiles.isEmpty()) {
+					zipPath = new File(zipPath, order.getName() + ".zip").getAbsolutePath();
+					return Pair.make("zip", Utility.zipFilesWithNames(inputFiles, zipPath));
+				}
+		}
+
+		return null;
+	}
+
+	private File getCsvReport(DistributionOrder order) {
 		SavedQuery query = getReportQuery(order);
 		if (query == null) {
 			return null;
@@ -1386,14 +1469,25 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			return null;
 		}
 
-		File dataFile = result.getDataFileHandle();
-		if (dataFile.length() > 1024 * 1024) { // 1 MB
-			String zipPath = new File(dataFile.getParentFile(), dataFile.getName() + ".zip").getAbsolutePath();
-			File zipFile = Utility.zipFiles(Collections.singletonList(dataFile.getAbsolutePath()), zipPath);
-			return new File[] { zipFile };
-		} else {
-			return new File[] { dataFile };
+		return result.getDataFileHandle();
+	}
+
+	private File getManifest(DistributionOrder order) {
+		ManifestGenerator<DistributionOrder> generator = manifestGeneratorFactory.getGenerator(ORDER_MANIFEST);
+		if (generator == null) {
+			return null;
 		}
+
+		return generator.generateManifest(order);
+	}
+
+	private boolean isFileLargerThan1MB(File file) {
+		return file.length() > 1024 * 1024;
+	}
+
+	private File zipFile(String name, File dataFile) {
+		String zipPath = new File(dataFile.getParentFile(), dataFile.getName() + ".zip").getAbsolutePath();
+		return Utility.zipFilesWithNames(Collections.singletonList(Pair.make(dataFile.getAbsolutePath(), name)), zipPath);
 	}
 
 	private void notifyFailedOrder(ResponseEvent<?> resp) {

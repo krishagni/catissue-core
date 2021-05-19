@@ -79,6 +79,7 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 		setReport(detail, existing, dp, ose);
 		setOrderExtnForm(detail, existing, dp, ose);
 		setDisableEmailNotifs(detail, existing, dp, ose);
+		setAttachmentType(detail, existing, dp, ose);
 		setOrderItemLabelFormat(detail, existing, dp, ose);
 		setDistributingSites(detail, existing, dp, ose);
 		setExtension(detail, existing, dp, ose);
@@ -340,6 +341,20 @@ public class DistributionProtocolFactoryImpl implements DistributionProtocolFact
 			dp.setDisableEmailNotifs(detail.getDisableEmailNotifs());
 		} else {
 			dp.setDisableEmailNotifs(existing.getDisableEmailNotifs());
+		}
+	}
+
+	private void setAttachmentType(DistributionProtocolDetail detail, DistributionProtocol existing, DistributionProtocol dp, OpenSpecimenException ose) {
+		if (existing == null || detail.isAttrModified("attachmentType")) {
+			if (StringUtils.isNotBlank(detail.getAttachmentType())) {
+				try {
+					dp.setAttachmentType(DistributionProtocol.NotifAttachmentType.valueOf(detail.getAttachmentType()));
+				} catch (Exception e) {
+					ose.addError(DistributionProtocolErrorCode.INV_ATTACH_TYPE, detail.getAttachmentType());
+				}
+			}
+		} else {
+			dp.setAttachmentType(existing.getAttachmentType());
 		}
 	}
 

@@ -1188,6 +1188,7 @@
     "distributing_sites": "Distributing Sites",
     "custom_fields_form": "Order Custom Fields",
     "order_report_query": "Order Report Query",
+    "order_attachment": "Order Attachment",
     "email_notifs": "Email Notifications",
     "disable_email_notifs": "Disable e-mail notifications. No e-mails will be sent when orders are processed.",
     "closed": "Closed",
@@ -1220,6 +1221,13 @@
     "bulk_import": "Import Distribution Protocols",
     "req_bulk_import": "Import Requirements",
     "bulk_import_jobs": "Import Jobs List",
+
+    "attachment_types": {
+      "NONE": "None",
+      "CSV_REPORT": "CSV Report",
+      "MANIFEST": "Manifest (PDF)",
+      "BOTH": "Both CSV Report and Manifest"
+    },
 
     "tooltip": {
       "view_details": "Click to view Distribution Protocol details",
@@ -2881,7 +2889,10 @@
         "download_labels_print_file": "Download Labels Print File",
         "download_labels_print_file_desc": "Enable or disable downloading of specimen labels print integration data file. When enabled, a CSV file containing the specimens data to be printed on labels (stickers) is downloaded to the user computer. When disabled, the integration file is not downloaded.",
         "allow_dist_label_printing": "Print Distribution Labels",
-        "allow_dist_label_printing_desc": "Enable to allow printing of labels when specimens are distributed."
+        "allow_dist_label_printing_desc": "Enable to allow printing of labels when specimens are distributed.",
+
+        "order_attachment_type": "Order Attachment",
+        "order_attachment_type_desc": "Files to send in the order processed email notifications. Valid values are none, csv_report, manifest, or both."
       },
 
       "biospecimen": {

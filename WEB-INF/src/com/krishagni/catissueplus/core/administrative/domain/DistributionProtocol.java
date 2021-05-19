@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -31,6 +32,16 @@ import com.krishagni.catissueplus.core.de.domain.SavedQuery;
 @AuditTable(value = "CAT_DISTRIBUTION_PROTOCOL_AUD")
 public class DistributionProtocol extends BaseExtensionEntity {
 	public static final String EXTN = "DistributionProtocolExtension";
+
+	public enum NotifAttachmentType {
+		NONE,
+
+		CSV_REPORT,
+
+		MANIFEST,
+
+		BOTH
+	}
 
 	private static final String ENTITY_NAME = "distribution_protocol";
 
@@ -59,6 +70,8 @@ public class DistributionProtocol extends BaseExtensionEntity {
 	private Form orderExtnForm;
 
 	private Boolean disableEmailNotifs;
+
+	private NotifAttachmentType attachmentType;
 
 	private String orderItemLabelFormat;
 	
@@ -184,6 +197,18 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		this.disableEmailNotifs = disableEmailNotifs;
 	}
 
+	public boolean areEmailNotifsDisabled() {
+		return Boolean.TRUE.equals(disableEmailNotifs);
+	}
+
+	public NotifAttachmentType getAttachmentType() {
+		return attachmentType;
+	}
+
+	public void setAttachmentType(NotifAttachmentType attachmentType) {
+		this.attachmentType = attachmentType;
+	}
+
 	public String getOrderItemLabelFormat() {
 		return orderItemLabelFormat;
 	}
@@ -269,6 +294,7 @@ public class DistributionProtocol extends BaseExtensionEntity {
 		setReport(dp.getReport());
 		setOrderExtnForm(dp.getOrderExtnForm());
 		setDisableEmailNotifs(dp.getDisableEmailNotifs());
+		setAttachmentType(dp.getAttachmentType());
 		setOrderItemLabelFormat(dp.getOrderItemLabelFormat());
 		CollectionUpdater.update(getCoordinators(), dp.getCoordinators());
 		CollectionUpdater.update(getDistributingSites(), dp.getDistributingSites());

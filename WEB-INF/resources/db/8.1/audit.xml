@@ -37,4 +37,11 @@
       <column name="entityId_MOD" type="${boolean.type}"/>
     </createTable>
   </changeSet>
+
+  <changeSet author="vpawar" id="Distribution protocol - order attachment type">
+    <addColumn tableName="CAT_DISTRIBUTION_PROTOCOL_AUD">
+      <column name="ATTACHMENT_TYPE" type="${text.type}(16)"/>
+      <column name="attachmentType_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

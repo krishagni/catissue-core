@@ -14,4 +14,14 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Order email notification attachment type">
+    <sql>
+      call add_cfg_prop(
+        'administrative', 'order_attachment_type',
+        'order_attachment_type', 'order_attachment_type_desc',
+        'STRING', 'none'
+      );
+    </sql>
+  </changeSet>
 </databaseChangeLog>

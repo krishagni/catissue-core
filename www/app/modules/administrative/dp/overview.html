@@ -117,6 +117,18 @@
         </li>
 
         <li class="item">
+          <strong class="key key-sm" translate="dp.order_attachment">Attachment Type</strong>
+          <span class="value value-md">
+            <span ng-show="!distributionProtocol.attachmentType">
+              {{distributionProtocol.attachmentType | osNoValue}}
+            </span>
+            <span ng-show="distributionProtocol.attachmentType">
+              {{'dp.attachment_types.' + distributionProtocol.attachmentType | translate}}
+            </span>
+          </span>
+        </li>
+
+        <li class="item">
           <strong class="key key-sm" translate="dp.label_fmt">Label Format</strong>
           <span class="value value-md">{{distributionProtocol.orderItemLabelFormat | osNoValue}}</span>
         </li>
