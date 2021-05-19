@@ -3,17 +3,10 @@
 </template>
 
 <script>
-import http from '@/services/HttpClient.js';
-
 export default {
   name: 'App',
 
   setup() {
-    http.protocol = 'http';
-    http.host = 'localhost';
-    http.port = 8080;
-    http.path = 'openspecimen/rest/ng';
-    http.headers['X-OS-API-TOKEN'] = localStorage.getItem('osAuthToken');
   }
 }
 </script>
@@ -48,5 +41,10 @@ body {
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+a {
+  color: #337ab7;
+  text-decoration: none;
 }
 </style>

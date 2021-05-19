@@ -47,7 +47,7 @@ class HttpClient {
             result = this.protocol ? (this.protocol + '://') : 'https://';
             result += this.host;
             if (this.port) {
-                result += ':' + this.port + '/';
+                result += ':' + this.port;
             }
         }
 

@@ -45,24 +45,16 @@ export default {
           caption: 'Name',
           value: function(user) {
             return user.firstName + ' ' + user.lastName;
-          }
+          },
+          href: function(user) {
+            return ui.ngServer + '#/users/' + user.rowObject.id + '/overview';
+          },
+          hrefTarget: '_parent'
         },
-        {
-          name: 'emailAddress',
-          caption: 'Email Address'
-        },
-        {
-          name: 'loginName',
-          caption: 'Login Name'
-        },
-        {
-          name: 'instituteName',
-          caption: 'Institute'
-        },
-        {
-          name: 'primarySite',
-          caption: 'Primary Site'
-        },
+        { name: 'emailAddress', caption: 'Email Address' },
+        { name: 'loginName', caption: 'Login Name' },
+        { name: 'instituteName', caption: 'Institute' },
+        { name: 'primarySite', caption: 'Primary Site' },
         {
           name: 'activeSince',
           caption: 'Active Since',

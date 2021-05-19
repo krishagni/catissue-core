@@ -1,7 +1,17 @@
 <template>
   <div class="os-table">
     <DataTable :value="list">
-      <Column v-for="column of columns" :field="column.name" :header="column.caption" :key="column.name">
+      <Column v-for="column of columns" :header="column.caption" :key="column.name">
+        <template #body="slotProps">
+          <span v-if="column.href">
+            <a :href="column.href(slotProps.data)" :target="column.hrefTarget">
+              <span v-text="slotProps.data[column.name]"></span>
+            </a>
+          </span>
+          <span v-else>
+            <span v-text="slotProps.data[column.name]"></span>
+          </span>
+        </template>
       </Column>
     </DataTable>
   </div>
@@ -31,7 +41,7 @@ export default {
 
       let result = [];
       for (let rowIdx = 0; rowIdx < input.length; ++rowIdx) {
-        let row = {};
+        let row = {rowObject: input[rowIdx]};
 
         for (let colIdx = 0; colIdx < columnDefs.length; ++colIdx) {
           let cd = columnDefs[colIdx];
