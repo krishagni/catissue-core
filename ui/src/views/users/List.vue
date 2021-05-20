@@ -6,7 +6,13 @@
       </template>
     </PageHeader>
     <PageBody>
-      <ListView :data="ctx.users" :columns="ctx.columns"></ListView>
+      <PageToolbar>
+        <template #right>
+          <Button label="Search" @click="openSearch"/>
+        </template>
+      </PageToolbar>
+
+      <ListView :data="ctx.users" :columns="ctx.columns" ref="listView"></ListView>
     </PageBody>
   </Page>
 </template>
@@ -19,6 +25,8 @@ import ListView from '@/components/ListView.vue';
 import Page from '@/components/Page.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import PageBody from '@/components/PageBody.vue';
+import PageToolbar from '@/components/PageToolbar.vue';
+import Button from '@/components/Button.vue';
 import http from '@/services/HttpClient.js';
 
 export default {
@@ -30,6 +38,8 @@ export default {
     Page,
     PageHeader,
     PageBody,
+    PageToolbar,
+    Button,
     ListView,
   },
 
@@ -73,6 +83,12 @@ export default {
     return {
       ctx
     };
+  },
+
+  methods: {
+    openSearch: function() {
+      this.$refs.listView.toggleShowFilters();
+    }
   }
 }
 </script>

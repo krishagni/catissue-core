@@ -1,19 +1,27 @@
 <template>
-  <div class="os-table">
-    <DataTable :value="list">
-      <Column v-for="column of columns" :header="column.caption" :key="column.name">
-        <template #body="slotProps">
-          <span v-if="column.href">
-            <a :href="column.href(slotProps.data)" :target="column.hrefTarget">
-              <span v-text="slotProps.data[column.name]"></span>
-            </a>
-          </span>
-          <span v-else>
-            <span v-text="slotProps.data[column.name]"></span>
-          </span>
-        </template>
-      </Column>
-    </DataTable>
+  <div class="os-table" :class="{'show-filters': showFilters}">
+    <div class="results">
+      <div class="results-inner">
+        <DataTable :value="list">
+          <Column v-for="column of columns" :header="column.caption" :key="column.name">
+            <template #body="slotProps">
+              <span v-if="column.href">
+                <a :href="column.href(slotProps.data)" :target="column.hrefTarget">
+                  <span v-text="slotProps.data[column.name]"></span>
+                </a>
+              </span>
+              <span v-else>
+                <span v-text="slotProps.data[column.name]"></span>
+              </span>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="filters-inner">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -31,7 +39,15 @@ export default {
   },
 
   data() {
-    return {}
+    return {
+      showFilters: false
+    }
+  },
+
+  methods: {
+    toggleShowFilters: function() {
+      this.showFilters = !this.showFilters;
+    }
   },
 
   computed: {
@@ -62,6 +78,59 @@ export default {
 </script>
 
 <style scoped>
+  
+.os-table {
+  overflow: auto;
+  width: 100%;
+}
+
+.os-table:after {
+  content: ' ';
+  clear: both;
+  display: block;
+}
+
+.os-table .results {
+  float: left;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.os-table.show-filters .results {
+  width: 75%;
+}
+
+.os-table .results .results-inner {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+}
+
+.os-table .filters {
+  float: left;
+  display: none;
+  position: relative;
+  height: 100%;
+  width: 25%;
+}
+
+.os-table.show-filters .filters {
+  display: block;
+}
+
+.os-table .filters .filters-inner {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  overflow: auto;
+  margin: 0px 15px 15px
+}
 
 .os-table /deep/ table {
   width: 100%;

@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config';
-import router from './router'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+import router from './router'
 import App from './App.vue'
 import http from '@/services/HttpClient.js';
 
