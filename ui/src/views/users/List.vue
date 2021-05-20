@@ -12,7 +12,9 @@
         </template>
       </PageToolbar>
 
-      <ListView :data="ctx.users" :columns="ctx.columns" ref="listView"></ListView>
+      <ListView :data="ctx.users" :columns="ctx.columns" :filters="ctx.filters" @filtersUpdated="loadUsers"
+        ref="listView">
+      </ListView>
     </PageBody>
   </Page>
 </template>
@@ -75,6 +77,11 @@ export default {
             return undefined;
           }
         }
+      ],
+
+      filters: [
+        { name: 'name', type: 'text', caption: 'Name' },
+        { name: 'loginName', type: 'text', caption: 'Login Name' },
       ]
     });
 
@@ -88,6 +95,10 @@ export default {
   methods: {
     openSearch: function() {
       this.$refs.listView.toggleShowFilters();
+    },
+
+    loadUsers: function(filters) {
+      http.get('users', filters).then(resp => this.ctx.users = resp);
     }
   }
 }

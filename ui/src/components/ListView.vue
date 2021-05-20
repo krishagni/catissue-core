@@ -20,6 +20,20 @@
     </div>
     <div class="filters">
       <div class="filters-inner">
+        <div class="title">
+          <span>Filters</span>
+        </div>
+        <div class="body">
+          <div class="form-group" v-for="filter of filters" :key="filter.name">
+            <span v-if="filter.type == 'text'">
+              <InputText md-type="true" :placeholder="filter.caption" v-model="filterValues[filter.name]"/>
+            </span>
+          </div>
+
+          <div class="form-group">
+            <Dropdown v-model="filterValues.dd" :options="cities" @search="searchCity"/>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -29,24 +43,56 @@
 
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import InputText from '@/components/InputText.vue';
+import Dropdown from '@/components/Dropdown.vue';
 
 export default {
-  props: [ 'data', 'columns' ],
+  props: [ 'data', 'columns', 'filters' ],
 
   components: {
     DataTable,
-    Column
+    Column,
+    InputText,
+    Dropdown
+  },
+
+  setup() {
+    return {
+      debounce: (function() {
+        let timeout = null;
+        return function(fn, delayMs) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => { fn(); }, delayMs || 500);
+        };
+      })()
+    }
   },
 
   data() {
     return {
-      showFilters: false
+      showFilters: false,
+
+      filterValues: { },
+
+      cities: []
     }
   },
 
   methods: {
     toggleShowFilters: function() {
       this.showFilters = !this.showFilters;
+    },
+
+    searchCity: function(query) {
+      alert(query);
+
+      let citiesRepo = ['Pune', 'Kolhapur', 'Nippani', 'Belgaum', 'Dharwad', 'Hubli'];
+
+      if (!query) {
+        this.cities = citiesRepo;
+      } else {
+        this.cities = citiesRepo.filter(city => city.toLowerCase().indexOf((query || '').toLowerCase()) > -1);
+      }
     }
   },
 
@@ -72,6 +118,17 @@ export default {
       }
 
       return result;
+    }
+  },
+
+  watch: {
+    filterValues: {
+      deep: true,
+
+      handler(newVal) {
+        let self = this;
+        this.debounce(() => self.$emit('filtersUpdated', newVal));
+      }
     }
   }
 }
@@ -130,6 +187,24 @@ export default {
   bottom: 0px;
   overflow: auto;
   margin: 0px 15px 15px
+}
+
+.filters .title {
+  margin: 0px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333!important;
+  line-height: 1.42;
+  padding: 8px 0px;
+  border-bottom: 2px solid #ddd;
+}
+
+.filters .body {
+  margin-top: 25px;
+}
+
+.filters .body .form-group {
+  margin-bottom: 30px;
 }
 
 .os-table /deep/ table {
