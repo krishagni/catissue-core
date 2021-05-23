@@ -82,6 +82,49 @@ export default {
       filters: [
         { name: 'name', type: 'text', caption: 'Name' },
         { name: 'loginName', type: 'text', caption: 'Login Name' },
+        {
+          name: 'institute',
+          type: 'dropdown',
+          caption: 'Institute',
+          listSource: {
+            displayProp: 'name',
+            selectProp: 'name',
+            loadFn: (opts) => http.get('institutes', opts || {maxResults: 100})
+          }
+        },
+        {
+          name: 'group',
+          type: 'dropdown',
+          caption: 'User Group',
+          listSource: {
+            displayProp: 'name',
+            selectProp: 'name',
+            loadFn: (opts) => http.get('user-groups', opts || {maxResults: 100})
+          }
+        },
+        {
+          name: 'activityStatus',
+          type: 'dropdown',
+          caption: 'Activity Status',
+          listSource: {
+            options: [ 'Active', 'Archived', 'Expired', 'Locked', 'Pending' ]
+          }
+        },
+        {
+          name: 'type',
+          type: 'dropdown',
+          caption: 'Type',
+          listSource: {
+            selectProp: 'name',
+            displayProp: 'caption',
+            options: [
+              {name: 'SUPER', caption: 'Super Admin'},
+              {name: 'INSTITUTE', caption: 'Institute Admin'},
+              {name: 'CONTACT', caption: 'Contact'},
+              {name: 'NONE', caption: 'Regular'}
+            ]
+          }
+        }
       ]
     });
 

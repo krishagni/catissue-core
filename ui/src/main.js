@@ -1,6 +1,11 @@
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
+// import 'primevue/resources/themes/saga-blue/theme.css';
+import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
+import 'primevue/resources/primevue.css';
+import 'primeflex/primeflex.css';
+import 'primeicons/primeicons.css';
 
 import router from './router'
 import App from './App.vue'

@@ -1,17 +1,25 @@
 
 <template>
-  <div class="os-md-input" v-if="$attrs['md-type']">
-    <label v-show="showLabel">{{$attrs.placeholder}}</label>
-    <input type="text" class="form-control" v-model="inputVal" v-bind="$attrs">
+  <div class="os-input-text">
+    <div class="p-float-label" v-if="$attrs['md-type']">
+      <p-input-text type="text" v-model="inputValue" />
+      <label>{{$attrs.placeholder}}</label>
+    </div>
+    <div v-else>
+      <p-input-text type="text" v-model="inputValue" />
+    </div>
   </div>
-  <span v-else>
-    <input type="text" class="form-control" v-model="inputVal" v-bind="$attrs">
-  </span>
 </template>
 
 <script>
+import InputText from 'primevue/inputtext';
+
 export default {
   props: ['modelValue'],
+
+  components: {
+    'p-input-text': InputText
+  },
 
   data() {
     return {
@@ -19,7 +27,7 @@ export default {
   },
 
   computed: {
-    inputVal: {
+    inputValue: {
       get() {
         return this.modelValue;
       },
@@ -27,10 +35,6 @@ export default {
       set(value) {
         this.$emit('update:modelValue', value);
       }
-    },
-
-    showLabel: function() {
-      return !!this.modelValue;
     }
   },
 
@@ -40,34 +44,28 @@ export default {
 </script>
 
 <style scoped>
-  .os-md-input {
-    position: relative;
+  .os-input-text .p-float-label {
+    margin-top: 10px;
   }
 
-  .os-md-input > label {
-    position: absolute;
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 0.8em;
-    font-weight: normal;
-    top: -1.25em;
-  }
-
-  .os-md-input input {
-    border: 0;
-    height: auto!important;
-    box-shadow: none !important;
-    border-radius: 0;
-    border-bottom: 2px solid #ddd;
-    margin-top: 15px;
-    outline: none;
-    display: block;
-    width: 100%;
+  .os-input-text .p-float-label :deep(.p-inputtext) {
+    border: 0px;
+    border-bottom: 2px solid #ced4da;
+    border-radius: 0px;
     padding: 2px 0px;
+    box-shadow: none;
   }
 
-  .os-md-input input:focus {
-    border-bottom: 2px solid #66afe9!important;
-    background: #fff!important;
-    border-color: #66afe9!important;
+  .os-input-text .p-float-label :deep(.p-inputtext:enabled:focus) {
+    border-bottom-color: #007bff;
+  }
+
+  .os-input-text .p-float-label :deep(label) {
+    left: 0rem;
+  }
+
+  .os-input-text .p-float-label :deep(.p-inputtext:not(:enabled:focus) ~ label) {
+    color: #999;
+    opacity: 1;
   }
 </style>

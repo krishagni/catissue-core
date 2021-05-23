@@ -19,6 +19,7 @@ html {
 body {
   margin: 0px;
   height: calc(100% - 15px);
+  overflow: hidden;
 }
 
 #app {
@@ -28,6 +29,15 @@ body {
   color: #333333;
   background-color: #fff;
   height: 100%;
+}
+
+body .p-component,
+body .p-component .p-inputtext {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333333;
+  background-color: #fff;
 }
 
 #nav {

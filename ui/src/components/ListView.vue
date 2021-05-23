@@ -2,8 +2,8 @@
   <div class="os-table" :class="{'show-filters': showFilters}">
     <div class="results">
       <div class="results-inner">
-        <DataTable :value="list">
-          <Column v-for="column of columns" :header="column.caption" :key="column.name">
+        <data-table :value="list">
+          <column v-for="column of columns" :header="column.caption" :key="column.name">
             <template #body="slotProps">
               <span v-if="column.href">
                 <a :href="column.href(slotProps.data)" :target="column.hrefTarget">
@@ -14,8 +14,8 @@
                 <span v-text="slotProps.data[column.name]"></span>
               </span>
             </template>
-          </Column>
-        </DataTable>
+          </column>
+        </data-table>
       </div>
     </div>
     <div class="filters">
@@ -24,15 +24,23 @@
           <span>Filters</span>
         </div>
         <div class="body">
-          <div class="form-group" v-for="filter of filters" :key="filter.name">
-            <span v-if="filter.type == 'text'">
-              <InputText md-type="true" :placeholder="filter.caption" v-model="filterValues[filter.name]"/>
-            </span>
-          </div>
-
-          <div class="form-group">
-            <Dropdown v-model="filterValues.dd" :options="cities" @search="searchCity"/>
-          </div>
+          <form-group dense v-for="filter of filters" :key="filter.name">
+            <cell :width="12">
+              <span v-if="filter.type == 'text'">
+                <input-text md-type="true" :placeholder="filter.caption" v-model="filterValues[filter.name]"/>
+              </span>
+              <span v-if="filter.type == 'dropdown'">
+                <dropdown md-type="true" :placeholder="filter.caption" v-model="filterValues[filter.name]"
+                  :list-source="filter.listSource">
+                </dropdown>
+              </span>
+            </cell>
+          </form-group>
+          <form-group>
+            <cell :width="12">
+              <Button style="width: 100%" label="Clear Filters" @click="clearFilters"/>
+            </cell>
+          </form-group>
         </div>
       </div>
     </div>
@@ -43,17 +51,24 @@
 
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
+import FormGroup from '@/components/FormGroup.vue';
+import Col from '@/components/Col.vue';
 import InputText from '@/components/InputText.vue';
 import Dropdown from '@/components/Dropdown.vue';
+import Button from '@/components/Button.vue';
 
 export default {
   props: [ 'data', 'columns', 'filters' ],
 
   components: {
-    DataTable,
-    Column,
-    InputText,
-    Dropdown
+    'data-table': DataTable,
+    'column': Column,
+    'form-group': FormGroup,
+    'cell': Col,
+    'input-text': InputText,
+    'dropdown': Dropdown,
+    Button
   },
 
   setup() {
@@ -72,9 +87,7 @@ export default {
     return {
       showFilters: false,
 
-      filterValues: { },
-
-      cities: []
+      filterValues: { }
     }
   },
 
@@ -83,16 +96,8 @@ export default {
       this.showFilters = !this.showFilters;
     },
 
-    searchCity: function(query) {
-      alert(query);
-
-      let citiesRepo = ['Pune', 'Kolhapur', 'Nippani', 'Belgaum', 'Dharwad', 'Hubli'];
-
-      if (!query) {
-        this.cities = citiesRepo;
-      } else {
-        this.cities = citiesRepo.filter(city => city.toLowerCase().indexOf((query || '').toLowerCase()) > -1);
-      }
+    clearFilters: function() {
+      this.filters.forEach((filter) => this.filterValues[filter.name] = undefined);
     }
   },
 
@@ -138,7 +143,7 @@ export default {
   
 .os-table {
   overflow: auto;
-  width: 100%;
+  margin-right: -15px;
 }
 
 .os-table:after {
@@ -165,6 +170,7 @@ export default {
   left: 0px;
   right: 0px;
   overflow: auto;
+  padding-right: 15px;
 }
 
 .os-table .filters {
@@ -177,6 +183,7 @@ export default {
 
 .os-table.show-filters .filters {
   display: block;
+  border-left: 1px solid #ddd;
 }
 
 .os-table .filters .filters-inner {
@@ -186,7 +193,7 @@ export default {
   right: 0px;
   bottom: 0px;
   overflow: auto;
-  margin: 0px 15px 15px
+  padding: 0px 15px 15px
 }
 
 .filters .title {
