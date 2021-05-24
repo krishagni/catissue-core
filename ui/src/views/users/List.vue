@@ -8,9 +8,9 @@
     <PageBody>
       <PageToolbar>
         <template #default>
-          <Button label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
+          <Button left-icon="plus" label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
 
-          <Button label="User Groups" @click="ngGoto('user-groups')" />
+          <Button left-icon="users" label="User Groups" @click="ngGoto('user-groups')" />
 
           <Menu label="Import" :options="importOpts" />
 
@@ -18,7 +18,7 @@
         </template>
 
         <template #right>
-          <Button label="Search" @click="openSearch" />
+          <Button left-icon="search" label="Search" @click="openSearch" />
         </template>
       </PageToolbar>
 

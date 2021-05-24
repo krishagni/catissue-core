@@ -1,7 +1,7 @@
 
 <template>
   <span>
-    <Button :label="label" @click="toggle" />
+    <Button :label="label" right-icon="caret-down" @click="toggle" />
     <dropdown-menu ref="menu" :model="items" :popup="true" />
   </span>
 </template>

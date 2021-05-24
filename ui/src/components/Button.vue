@@ -1,9 +1,24 @@
 
 <template>
   <button type="button" class="btn">
-    <span>{{$attrs.label}}</span>
+    <icon v-if="leftIcon" :name="leftIcon" class="pad-right"/>
+    <span>{{label}}</span>
+    <icon v-if="rightIcon" :name="rightIcon" class="pad-left"/>
   </button>
 </template>
+
+<script>
+import Icon from '@/components/Icon.vue';
+
+export default {
+  props: ['leftIcon', 'rightIcon', 'label'],
+
+  components: {
+    'icon': Icon
+  }
+}
+
+</script>
 
 <style scoped>
 
