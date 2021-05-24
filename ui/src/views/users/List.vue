@@ -13,6 +13,8 @@
           <Button label="User Groups" @click="ngGoto('user-groups')" />
 
           <Menu label="Import" :options="importOpts" />
+
+          <Menu label="Export" :options="exportOpts" />
         </template>
         <template #right>
           <Button label="Search" @click="openSearch" />
@@ -45,6 +47,7 @@ import Menu from '@/components/Menu.vue';
 
 import http from '@/services/HttpClient.js';
 import routerSvc from '@/services/Router.js';
+import exportSvc from '@/services/ExportService.js';
 
 export default {
   name: 'UsersList',
@@ -170,6 +173,14 @@ export default {
         { caption: 'User Roles', onSelect: () => this.ngGoto('user-import', {objectType: 'userRoles'}) },
         { caption: 'Forms', onSelect: () => this.ngGoto('user-import', {objectType: 'extensions'}) },
         { caption: 'View Past Imports', onSelect: () => this.ngGoto('user-import-jobs') }
+      ]
+    },
+
+    exportOpts: function() {
+      return [
+        { caption: 'Users', onSelect: () => exportSvc.exportRecords({objectType: 'user'}) },
+        { caption: 'User Roles', onSelect: () => exportSvc.exportRecords({objectType: 'userRoles'}) },
+        { caption: 'User Forms', onSelect: () => this.ngGoto('user-export-forms') }
       ]
     }
   }
