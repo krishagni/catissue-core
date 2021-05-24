@@ -7,13 +7,23 @@
     </PageHeader>
     <PageBody>
       <PageToolbar>
+        <template #default>
+          <Button label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
+
+          <Button label="User Groups" @click="ngGoto('user-groups')" />
+        </template>
         <template #right>
-          <Button label="Search" @click="openSearch"/>
+          <Button label="Search" @click="openSearch" />
         </template>
       </PageToolbar>
 
-      <ListView :data="ctx.users" :columns="ctx.columns" :filters="ctx.filters" @filtersUpdated="loadUsers"
-        ref="listView">
+      <ListView
+        :data="ctx.users"
+        :columns="ctx.columns"
+        :filters="ctx.filters"
+        @filtersUpdated="loadUsers"
+        ref="listView"
+      >
       </ListView>
     </PageBody>
   </Page>
@@ -29,7 +39,9 @@ import PageHeader from '@/components/PageHeader.vue';
 import PageBody from '@/components/PageBody.vue';
 import PageToolbar from '@/components/PageToolbar.vue';
 import Button from '@/components/Button.vue';
+
 import http from '@/services/HttpClient.js';
+import routerSvc from '@/services/Router.js';
 
 export default {
   name: 'UsersList',
@@ -55,10 +67,10 @@ export default {
         {
           name: 'name',
           caption: 'Name',
-          value: function(user) {
+          value: function (user) {
             return user.firstName + ' ' + user.lastName;
           },
-          href: function(user) {
+          href: function (user) {
             return ui.ngServer + '#/users/' + user.rowObject.id + '/overview';
           },
           hrefTarget: '_parent'
@@ -70,7 +82,7 @@ export default {
         {
           name: 'activeSince',
           caption: 'Active Since',
-          value: function(user) {
+          value: function (user) {
             if (user.creationDate) {
               return format(new Date(user.creationDate), ui.os.global.dateFmt);
             }
@@ -89,7 +101,7 @@ export default {
           listSource: {
             displayProp: 'name',
             selectProp: 'name',
-            loadFn: (opts) => http.get('institutes', opts || {maxResults: 100})
+            loadFn: (opts) => http.get('institutes', opts || { maxResults: 100 })
           }
         },
         {
@@ -99,7 +111,7 @@ export default {
           listSource: {
             displayProp: 'name',
             selectProp: 'name',
-            loadFn: (opts) => http.get('user-groups', opts || {maxResults: 100})
+            loadFn: (opts) => http.get('user-groups', opts || { maxResults: 100 })
           }
         },
         {
@@ -107,7 +119,7 @@ export default {
           type: 'dropdown',
           caption: 'Activity Status',
           listSource: {
-            options: [ 'Active', 'Archived', 'Expired', 'Locked', 'Pending' ]
+            options: ['Active', 'Archived', 'Expired', 'Locked', 'Pending']
           }
         },
         {
@@ -118,10 +130,10 @@ export default {
             selectProp: 'name',
             displayProp: 'caption',
             options: [
-              {name: 'SUPER', caption: 'Super Admin'},
-              {name: 'INSTITUTE', caption: 'Institute Admin'},
-              {name: 'CONTACT', caption: 'Contact'},
-              {name: 'NONE', caption: 'Regular'}
+              { name: 'SUPER', caption: 'Super Admin' },
+              { name: 'INSTITUTE', caption: 'Institute Admin' },
+              { name: 'CONTACT', caption: 'Contact' },
+              { name: 'NONE', caption: 'Regular' }
             ]
           }
         }
@@ -136,13 +148,15 @@ export default {
   },
 
   methods: {
-    openSearch: function() {
+    openSearch: function () {
       this.$refs.listView.toggleShowFilters();
     },
 
-    loadUsers: function(filters) {
+    loadUsers: function (filters) {
       http.get('users', filters).then(resp => this.ctx.users = resp);
-    }
+    },
+
+    ngGoto: routerSvc.ngGoto
   }
 }
 </script>

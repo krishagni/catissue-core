@@ -12,13 +12,17 @@
 
 <style scoped>
   .os-page-toolbar {
-    padding: 10px 15px 15px;
+    padding: 10px 0px 15px;
   }
 
   .os-page-toolbar:after {
     content: ' ';
     clear: both;
     display: block;
+  }
+
+  .os-page-toolbar :deep(button) {
+    margin-right: 4px;
   }
 
   .os-page-toolbar .left {

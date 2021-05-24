@@ -426,6 +426,9 @@ osApp.config(function(
         window.frames['vueapp'].postMessage({op: 'getGlobalProps', resp: ui}, '*');
       } else if (data.op == 'getAuthToken') {
         window.frames['vueapp'].postMessage({op: 'getAuthToken', resp: $window.localStorage['osAuthToken']}, '*');
+      } else if (data.op == 'route_change') {
+        var dest = data.payload;
+        $state.go(dest.state, dest.params);
       }
     });
 
