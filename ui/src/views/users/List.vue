@@ -11,6 +11,8 @@
           <Button label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
 
           <Button label="User Groups" @click="ngGoto('user-groups')" />
+
+          <Menu label="Import" :options="importOpts" />
         </template>
         <template #right>
           <Button label="Search" @click="openSearch" />
@@ -39,6 +41,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import PageBody from '@/components/PageBody.vue';
 import PageToolbar from '@/components/PageToolbar.vue';
 import Button from '@/components/Button.vue';
+import Menu from '@/components/Menu.vue';
 
 import http from '@/services/HttpClient.js';
 import routerSvc from '@/services/Router.js';
@@ -55,6 +58,7 @@ export default {
     PageToolbar,
     Button,
     ListView,
+    Menu
   },
 
   setup() {
@@ -157,6 +161,17 @@ export default {
     },
 
     ngGoto: routerSvc.ngGoto
+  },
+
+  computed: {
+    importOpts: function() {
+      return [
+        { caption: 'Users', onSelect: () => this.ngGoto('user-import', {objectType: 'user'}) },
+        { caption: 'User Roles', onSelect: () => this.ngGoto('user-import', {objectType: 'userRoles'}) },
+        { caption: 'Forms', onSelect: () => this.ngGoto('user-import', {objectType: 'extensions'}) },
+        { caption: 'View Past Imports', onSelect: () => this.ngGoto('user-import-jobs') }
+      ]
+    }
   }
 }
 </script>
