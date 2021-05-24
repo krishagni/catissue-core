@@ -16,6 +16,7 @@
 
           <Menu label="Export" :options="exportOpts" />
         </template>
+
         <template #right>
           <Button label="Search" @click="openSearch" />
         </template>

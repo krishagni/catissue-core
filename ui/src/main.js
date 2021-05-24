@@ -7,9 +7,12 @@ import 'primevue/resources/primevue.css';
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 
+import ToastService from 'primevue/toastservice';
+
 import router from './router'
 import App from './App.vue'
 import http from '@/services/HttpClient.js';
+import alerts from '@/services/Alerts.js';
 
 const ui = {
   ngServer: 'http://localhost:9000/'
@@ -39,7 +42,11 @@ window.addEventListener('message', function(event) {
 
 const app = createApp(App)
   .use(router)
-  .use(PrimeVue);
+  .use(PrimeVue)
+  .use(ToastService);
+
 app.mount('#app')
 app.provide('ui', ui);
+
+alerts.toastSvc = app.config.globalProperties.$toast;
 

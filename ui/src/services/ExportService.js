@@ -1,20 +1,21 @@
 
 import http from '@/services/HttpClient.js'
+import alerts from '@/services/Alerts.js'
 
 class ExportService {
 
   exportRecords(input) {
-    //var msg = Alerts.info('export.initiated');
+    alerts.info('Export records has been initiated. Records file download should start in a few moments..', -1, 'ei1');
     http.post('export-jobs', {}, input).then(
       function(savedJob) {
-        // Alerts.remove(msg);
+        alerts.remove('ei1');
         if (savedJob.status == 'COMPLETED') {
-          // Alerts.info('export.downloading_file');
+          alerts.info('Downloading records file');
           http.downloadFile(http.getUrl('export-jobs/') + savedJob.id + '/output');
         } else if (savedJob.status == 'FAILED') {
-          // Alerts.error('export.failed', savedJob);
+          alerts.error('Export job ' + savedJob.id + ' failed with errors. Please contact system administrator for help!');
         } else {
-          //Alerts.info('export.file_will_be_emailed', savedJob);
+          alerts.info('Export records job ' + savedJob.id + ' is taking longer time to finish. Link to download records file will be sent to you by e-mail');
         }
       }
     );
