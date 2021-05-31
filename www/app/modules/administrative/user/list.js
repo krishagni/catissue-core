@@ -25,7 +25,14 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
       if (ctx.vue) {
         var url = 'http://localhost:8081/#/';
         if ($stateParams.view == 'users-list') {
-          url += 'users';
+          url += 'users?';
+          angular.forEach($stateParams,
+            function(value, key) {
+              if (value) {
+                url += key + '=' + value + '&';
+              }
+            }
+          );
         } else if ($stateParams.view == 'user-addedit') {
           url += 'user-addedit/777';
         }

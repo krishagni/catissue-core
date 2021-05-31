@@ -5,6 +5,7 @@ import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
 import 'primevue/resources/primevue.css';
 import 'primeflex/primeflex.css';
+import 'primeicons/primeicons.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
