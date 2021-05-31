@@ -7,7 +7,7 @@
     </PageHeader>
     <PageBody>
       <PageToolbar>
-        <template #default>
+        <template v-if="ctx.selectedUsers.length == 0" #default>
           <Button left-icon="plus" label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
 
           <Button left-icon="users" label="User Groups" @click="ngGoto('user-groups')" />
@@ -28,6 +28,8 @@
         :filters="ctx.filters"
         :query="ctx.query"
         @filtersUpdated="loadUsers"
+        allowSelection="true"
+        @selectedRows="onUsersSelection"
         ref="listView"
       >
       </ListView>
@@ -73,6 +75,8 @@ export default {
 
     let ctx = reactive({
       users: [],
+
+      selectedUsers: [],
 
       columns: [
         {
@@ -166,6 +170,10 @@ export default {
     loadUsers: function ({filters, uriEncoding}) {
       routerSvc.ngGoto(undefined, {filters: uriEncoding}, {notify: false});
       http.get('users', filters).then(resp => this.ctx.users = resp);
+    },
+
+    onUsersSelection: function(selection) {
+      this.ctx.selectedUsers = selection;
     },
 
     ngGoto: routerSvc.ngGoto

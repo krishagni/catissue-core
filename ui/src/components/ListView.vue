@@ -1,8 +1,13 @@
 <template>
-  <div class="os-table" :class="{'show-filters': showFilters}">
+  <div class="os-table os-table-hover" :class="{'show-filters': showFilters}">
     <div class="results">
       <div class="results-inner">
-        <data-table :value="list">
+        <div v-if="selectedRows.length > 0" class="p-inline-message p-inline-message-info">
+          <span v-show="selectedRows.length == 1">1 record selected</span>
+          <span v-show="selectedRows.length > 1">{{selectedRows.length}} records selected</span>
+        </div>
+        <data-table :value="list" v-model:selection="selectedRows">
+          <column v-if="allowSelection" selectionMode="multiple"></column>
           <column v-for="column of columns" :header="column.caption" :key="column.name">
             <template #body="slotProps">
               <span v-if="column.href">
@@ -59,7 +64,9 @@ import Dropdown from '@/components/Dropdown.vue';
 import Button from '@/components/Button.vue';
 
 export default {
-  props: [ 'data', 'columns', 'filters', 'query' ],
+  props: [ 'data', 'columns', 'filters', 'query', 'allowSelection'],
+
+  emits: ['selectedRows', 'filtersUpdated'],
 
   components: {
     'data-table': DataTable,
@@ -87,7 +94,9 @@ export default {
     return {
       showFilters: false,
 
-      filterValues: { }
+      filterValues: { },
+
+      selectedRows: []
     }
   },
 
@@ -165,6 +174,12 @@ export default {
       handler() {
         let self = this;
         this.debounce(() => self.emitFiltersUpdated());
+      }
+    },
+
+    selectedRows: {
+      handler(newVal) {
+        this.$emit('selectedRows', newVal);
       }
     }
   }
@@ -246,7 +261,7 @@ export default {
   margin-bottom: 30px;
 }
 
-.os-table /deep/ table {
+.os-table :deep(table) {
   width: 100%;
   margin-bottom: 20px;
   display: table;
@@ -254,13 +269,13 @@ export default {
   table-layout: inherit;
 }
 
-.os-table /deep/ tr {
+.os-table :deep(tr) {
   margin-right: 0px;
   margin-left: 0px;
 }
 
-.os-table /deep/ thead tr th,
-.os-table /deep/ tbody tr td {
+.os-table :deep(thead tr th),
+.os-table :deep(tbody tr td) {
   padding: 8px;
   line-height: 1.42857143;
   vertical-align: top;
@@ -268,17 +283,29 @@ export default {
   word-break: break-word;
 }        
         
-.os-table /deep/ thead tr th {
+.os-table :deep(thead tr th) {
   vertical-align: bottom;
   border-bottom: 1px solid #ddd;
   font-weight: bold;
 }
     
-.os-table /deep/ thead tr:first-child th {
+.os-table :deep(thead tr:first-child th) {
   border-top: 0;
 }   
 
-.os-table-hover /deep/ tbody tr:hover {
+.os-table-hover :deep(tbody tr:hover) {
   background: #f7f7f7;
+}
+
+.os-table :deep(.p-datatable .p-datatable-tbody > tr.p-highlight) {
+  /*background: #E3F2FD;
+  color: #495057;*/
+  background: inherit;
+  color: inherit;
+}
+
+.os-table :deep(.p-checkbox .p-checkbox-box.p-highlight) {
+  background: #2196F3;
+  border-color: #2196F3;
 }
 </style>
