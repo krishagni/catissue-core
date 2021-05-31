@@ -13,7 +13,8 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "users-list" */ '../views/users/List.vue')
+    component: () => import(/* webpackChunkName: "users-list" */ '../views/users/List.vue'),
+    props: (route) => ({filters: route.query && route.query.filters})
   },
   {
     path: '/user-addedit/:userId',

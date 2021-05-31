@@ -10,7 +10,8 @@
         :filter="true"
         :show-clear="showClear"
         @focus="searchOptions"
-        @filter="searchOptions($event)"/>
+        @filter="searchOptions($event)">
+      </Dropdown>
       <label>{{$attrs.placeholder}}</label>
     </div>
     <div v-else>
@@ -120,6 +121,14 @@ export default {
 
     showClear: function() {
       return true;
+    }
+  },
+
+  watch: {
+    selected(newVal, oldVal) {
+      if (!oldVal && !!newVal) {
+        this.searchOptions({value: newVal});
+      }
     }
   }
 }

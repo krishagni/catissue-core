@@ -59,7 +59,7 @@ import Dropdown from '@/components/Dropdown.vue';
 import Button from '@/components/Button.vue';
 
 export default {
-  props: [ 'data', 'columns', 'filters' ],
+  props: [ 'data', 'columns', 'filters', 'query' ],
 
   components: {
     'data-table': DataTable,
@@ -88,6 +88,20 @@ export default {
       showFilters: false,
 
       filterValues: { }
+    }
+  },
+
+  mounted() {
+    let values = {};
+    if (this.query) {
+      values = JSON.parse(decodeURIComponent(atob(this.query)));
+    }
+
+    Object.assign(this.filterValues, values);
+    if (Object.keys(values).length > 0) {
+      this.showFilters = true;
+    } else {
+      this.$emit('filtersUpdated', this.filterValues)
     }
   },
 

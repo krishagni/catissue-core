@@ -26,6 +26,7 @@
         :data="ctx.users"
         :columns="ctx.columns"
         :filters="ctx.filters"
+        :query="ctx.query"
         @filtersUpdated="loadUsers"
         ref="listView"
       >
@@ -55,6 +56,8 @@ export default {
 
   inject: ['ui'],
 
+  props: ['filters'],
+
   components: {
     Page,
     PageHeader,
@@ -65,7 +68,7 @@ export default {
     Menu
   },
 
-  setup() {
+  setup(props) {
     const ui = inject('ui');
 
     let ctx = reactive({
@@ -145,10 +148,10 @@ export default {
             ]
           }
         }
-      ]
-    });
+      ],
 
-    http.get('users').then(resp => ctx.users = resp);
+      query: props.filters
+    });
 
     return {
       ctx
