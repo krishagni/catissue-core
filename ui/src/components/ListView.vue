@@ -101,7 +101,7 @@ export default {
     if (Object.keys(values).length > 0) {
       this.showFilters = true;
     } else {
-      this.$emit('filtersUpdated', this.filterValues)
+      this.emitFiltersUpdated();
     }
   },
 
@@ -112,6 +112,24 @@ export default {
 
     clearFilters: function() {
       this.filters.forEach((filter) => this.filterValues[filter.name] = undefined);
+    },
+
+    emitFiltersUpdated: function() {
+      let fb = undefined;
+      if (this.filterValues && Object.keys(this.filterValues).length > 0) {
+        let curatedFilters = {};
+        for (const [key, value] of Object.entries(this.filterValues)) {
+          if (value) {
+            curatedFilters[key] = value;
+          }
+        }
+
+        if (Object.keys(curatedFilters).length > 0) {
+          fb = btoa(encodeURIComponent(JSON.stringify(curatedFilters)));
+        }
+      }
+
+      this.$emit('filtersUpdated', {filters: this.filterValues, uriEncoding: fb});
     }
   },
 
@@ -144,9 +162,9 @@ export default {
     filterValues: {
       deep: true,
 
-      handler(newVal) {
+      handler() {
         let self = this;
-        this.debounce(() => self.$emit('filtersUpdated', newVal));
+        this.debounce(() => self.emitFiltersUpdated());
       }
     }
   }

@@ -163,7 +163,8 @@ export default {
       this.$refs.listView.toggleShowFilters();
     },
 
-    loadUsers: function (filters) {
+    loadUsers: function ({filters, uriEncoding}) {
+      routerSvc.ngGoto(undefined, {filters: uriEncoding}, {notify: false});
       http.get('users', filters).then(resp => this.ctx.users = resp);
     },
 

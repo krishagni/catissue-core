@@ -426,9 +426,10 @@ osApp.config(function(
         window.frames['vueapp'].postMessage({op: 'getGlobalProps', resp: ui}, '*');
       } else if (data.op == 'getAuthToken') {
         window.frames['vueapp'].postMessage({op: 'getAuthToken', resp: $window.localStorage['osAuthToken']}, '*');
-      } else if (data.op == 'route_change') {
+      } else if (data.op == 'changeRoute') {
         var dest = data.payload;
-        $state.go(dest.state, dest.params);
+        var params = angular.extend(angular.extend({}, $state.params), dest.params || {});
+        $state.go(dest.state || $state.current.name, params, dest.opts || {});
       }
     });
 
