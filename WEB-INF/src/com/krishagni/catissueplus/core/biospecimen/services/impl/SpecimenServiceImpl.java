@@ -148,7 +148,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 
 			AccessCtrlMgr.SpecimenAccessRights rights = AccessCtrlMgr.getInstance().ensureReadSpecimenRights(specimen);
 			SpecimenDetail detail = SpecimenDetail.from(specimen, false, !rights.phiAccess, rights.onlyPrimarySpmns || !crit.isIncludeChildren());
-			setDistributionStatus(detail);
 			return ResponseEvent.response(detail);
 		} catch (OpenSpecimenException ose) {
 			return ResponseEvent.error(ose);
@@ -167,6 +166,8 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 				specimens = Specimen.sortByLabels(specimens, crit.labels());
 			} else if (CollectionUtils.isNotEmpty(crit.barcodes())) {
 				specimens = Specimen.sortByBarcodes(specimens, crit.barcodes());
+			} else if (CollectionUtils.isNotEmpty(crit.ids())) {
+				specimens = Specimen.sortByIds(specimens, crit.ids());
 			}
 
 			List<? extends SpecimenInfo> result = null;
@@ -738,16 +739,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		return daoFactory.getSpecimenDao().getSpecimens(crit);
 	}
 
-	private void setDistributionStatus(SpecimenDetail specimen) {
-		setDistributionStatus(flattenSpecimenTree(specimen));
-	}
-
-	private void setDistributionStatus(List<SpecimenInfo> specimens) {
-		List<Long> spmnIds = specimens.stream().map(SpecimenInfo::getId).collect(Collectors.toList());
-		Map<Long, String> distStatuses = daoFactory.getSpecimenDao().getDistributionStatus(spmnIds);
-		specimens.forEach(spmn -> spmn.setDistributionStatus(distStatuses.get(spmn.getId())));
-	}
-
 	private Specimen updateSpecimen(SpecimenDetail detail, OpenSpecimenException ose) {
 		Specimen existing = getSpecimen(detail.getId(), detail.getCpShortTitle(), detail.getLabel(), detail.getBarcode(), ose);
 		if (existing == null) {
@@ -757,16 +748,6 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 		AccessCtrlMgr.getInstance().ensureCreateOrUpdateSpecimenRights(existing);
 		saveOrUpdate(detail, null, existing, null);
 		return existing;
-	}
-
-	private List<SpecimenInfo> flattenSpecimenTree(SpecimenDetail specimen) {
-		return flattenSpecimenTree(specimen, new ArrayList<>());
-	}
-
-	private List<SpecimenInfo> flattenSpecimenTree(SpecimenDetail specimen, List<SpecimenInfo> result) {
-		result.add(specimen);
-		Utility.nullSafeStream(specimen.getChildren()).forEach(child -> flattenSpecimenTree(child, result));
-		return result;
 	}
 
 	private void ensureEditAllowed(SpecimenDetail detail, Specimen existing) {
@@ -1023,6 +1004,7 @@ public class SpecimenServiceImpl implements SpecimenService, ObjectAccessor, Con
 			specimen.updateHierarchyStatus();
 		}
 
+		specimen.updateAvailableStatus();
 		daoFactory.getSpecimenDao().saveOrUpdate(specimen);
 		specimen.addOrUpdateCollRecvEvents();
 		specimen.addOrUpdateExtension();

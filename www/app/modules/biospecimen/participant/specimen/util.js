@@ -1,6 +1,6 @@
 angular.module('os.biospecimen.specimen')
   .factory('SpecimenUtil', function(
-    $modal, $q, $parse, $location,
+    $modal, $q, $parse, $location, $translate,
     ParticipantSpecimensViewState, Specimen, PvManager, Alerts, Util) {
 
     var URL_LEN_LIMIT = 8192; // 8 KB
@@ -520,6 +520,37 @@ angular.module('os.biospecimen.specimen')
       );
     }
 
+    function getStatusCss(spmn) {
+      var availStatus = spmn.availabilityStatus;
+      if (!availStatus) {
+        availStatus = spmn.hidden.availabilityStatus;
+      }
+
+      availStatus = availStatus || 'Pending';
+      var status = '';
+
+      if (availStatus == 'Available') {
+        status = 'collected';
+      } else if (availStatus == 'Distributed') {
+        status = 'distributed';
+      } else if (availStatus == 'Reserved') {
+        status = 'reserved';
+      } else if (availStatus == 'Closed') {
+        status = 'closed';
+      } else if (availStatus == 'Missed Collection') {
+        status = 'missed';
+      } else if (availStatus == 'Not Collected') {
+        status = 'not-collected';
+      } else if (!availStatus || availStatus == 'Pending') {
+        status = 'pending';
+      }
+
+      return {
+        css: 'os-status-' + status,
+        tooltip: $translate.instant('specimens.tree_node_statuses.' + status)
+      };
+    }
+
     return {
       collectAliquots: collectAliquots,
 
@@ -541,7 +572,9 @@ angular.module('os.biospecimen.specimen')
 
       sdeGroupSpecimens: sdeGroupSpecimens,
 
-      sdeGroupSetChildrenValue: sdeGroupSetChildrenValue
+      sdeGroupSetChildrenValue: sdeGroupSetChildrenValue,
+
+      getStatusCss: getStatusCss
     };
   })
   .controller('ResolveSpecimensCtrl', function($scope, $modalInstance, labels, attr, Alerts) {

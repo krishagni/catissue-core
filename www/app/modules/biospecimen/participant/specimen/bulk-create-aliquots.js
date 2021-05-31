@@ -475,6 +475,7 @@ angular.module('os.biospecimen.specimen')
                   freezeThawCycles: spmn.freezeThawCycles,
                   incrParentFreezeThaw: spmn.incrParentFreezeThaw,
                   closeParent: spmn.closeParent,
+                  comments: spmn.comments,
                   printLabel: spmn.printLabel,
                   createDerived: createDerived
                 },

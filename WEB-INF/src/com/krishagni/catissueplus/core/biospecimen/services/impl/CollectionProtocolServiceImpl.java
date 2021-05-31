@@ -120,6 +120,7 @@ import com.krishagni.catissueplus.core.query.Column;
 import com.krishagni.catissueplus.core.query.ListConfig;
 import com.krishagni.catissueplus.core.query.ListDetail;
 import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.ListUtil;
 import com.krishagni.catissueplus.core.query.Row;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 import com.krishagni.rbac.events.SubjectRoleOpNotif;
@@ -1990,25 +1991,7 @@ public class CollectionProtocolServiceImpl implements CollectionProtocolService,
 			return null;
 		}
 
-		Column id = new Column();
-		id.setExpr("Specimen.id");
-		id.setCaption("specimenId");
-		cfg.setPrimaryColumn(id);
-
-		Column type = new Column();
-		type.setExpr("Specimen.type");
-		type.setCaption("specimenType");
-
-		Column specimenClass = new Column();
-		specimenClass.setExpr("Specimen.class");
-		specimenClass.setCaption("specimenClass");
-
-		List<Column> hiddenColumns = new ArrayList<>();
-		hiddenColumns.add(id);
-		hiddenColumns.add(type);
-		hiddenColumns.add(specimenClass);
-		cfg.setHiddenColumns(hiddenColumns);
-
+		ListUtil.addHiddenFieldsOfSpecimen(cfg);
 		Long cpId = (Long)listReq.get("cpId");
 		List<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessSpecimenSiteCps(cpId);
 		if (siteCps == null) {

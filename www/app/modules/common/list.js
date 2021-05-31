@@ -118,7 +118,7 @@ angular.module('openspecimen')
               showStarredItems($scope.starredExpr, ctx.data);
 
               pagerOpts.refreshOpts(resp.data.rows);
-              if (ctx.data.rows.length > 12 && ctrl.haveFilters) {
+              if (ctx.data.rows.length > 12 && ctrl.haveFilters && ctrl.autoSearchOpen != false) {
                 osRightDrawerSvc.open();
               }
 

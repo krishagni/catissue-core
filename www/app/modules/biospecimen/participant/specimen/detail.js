@@ -1,13 +1,14 @@
 angular.module('os.biospecimen.specimen.detail', [])
   .controller('SpecimenDetailCtrl', function(
     $scope, $state, $modal, $stateParams, currentUser, cp, listView, cpr, visit, specimen,
-    ParticipantSpecimensViewState, Specimen, SpecimenLabelPrinter, SpecimensHolder, DeleteUtil, Alerts) {
+    ParticipantSpecimensViewState, Specimen, SpecimenUtil, SpecimenLabelPrinter, SpecimensHolder, DeleteUtil, Alerts) {
 
     function init() {
       $scope.cpr = cpr;
       $scope.visit = visit;
       $scope.specimen = specimen;
       $scope.treeSpecimens = getTreeSpecimens(specimen);
+      $scope.statusCss = SpecimenUtil.getStatusCss(specimen);
     }
 
     function getTreeSpecimens(specimen) {

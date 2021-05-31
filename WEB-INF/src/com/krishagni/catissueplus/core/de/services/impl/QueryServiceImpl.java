@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1276,10 +1275,10 @@ public class QueryServiceImpl implements QueryService {
 
 		private String mask;
 		
-		private Map<Long, ParticipantReadAccess> phiAccessMap = new HashMap<Long, ParticipantReadAccess>();
+		private Map<Long, Boolean> phiAccessMap;
 		
 		private static final String MASK_MARKER = "##########";
-		
+
 		public QueryResultScreenerImpl(User user, boolean countQuery) {
 			this(user, countQuery, null);
 		}
@@ -1306,20 +1305,29 @@ public class QueryServiceImpl implements QueryService {
 			if (user.isAdmin() || this.countQuery || rowData.length == 0) {
 				return rowData;
 			}
+
+			if (phiAccessMap == null) {
+				phiAccessMap = new HashMap<>();
+				ParticipantReadAccess access = AccessCtrlMgr.getInstance().getParticipantReadAccess();
+				for (SiteCpPair siteCp : access.phiSiteCps) {
+					if (siteCp.getSiteId() == null && siteCp.getCpId() == null) {
+						List<Long> cpIds = AccessCtrlMgr.getInstance().getInstituteCpIds(AuthUtil.getCurrentUserInstitute().getId());
+						cpIds.forEach(cpId -> phiAccessMap.put(cpId, true));
+					} else if (siteCp.getCpId() == null) {
+						List<Long> cpIds = AccessCtrlMgr.getInstance().getSiteCpIds(siteCp.getSiteId());
+						cpIds.forEach(cpId -> phiAccessMap.put(cpId, true));
+					} else if (siteCp.getCpId() != null) {
+						phiAccessMap.put(siteCp.getCpId(), true);
+					}
+				}
+			}
 						
 			Long cpId = ((Number)rowData[0]).longValue();
 			Object[] screenedData = ArrayUtils.remove(rowData, 0);
-			
-			ParticipantReadAccess access = phiAccessMap.get(cpId);
-			if (access == null) {
-				access = AccessCtrlMgr.getInstance().getParticipantReadAccess(cpId);
-				phiAccessMap.put(cpId, access);
-			}
-			
-			if (access.phiAccess) {
+			if (Boolean.TRUE.equals(phiAccessMap.get(cpId))) {
 				return screenedData;
 			}
-			
+
 			int i = 0; 
 			boolean first = true;
 			for (ResultColumn col : preScreenedResultCols) {

@@ -673,6 +673,7 @@ public class Visit extends BaseExtensionEntity {
 		specimen.setParentSpecimen(parent);
 		specimen.setVisit(this);
 		specimen.setCollectionStatus(Specimen.PENDING);
+		specimen.updateAvailableStatus();
 		specimen.setLabelIfEmpty();
 
 		addSpecimen(specimen);

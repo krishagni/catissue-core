@@ -1085,6 +1085,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			event.setComments(comments);
 
 			spmn.setReservedEvent(event);
+			spmn.setAvailabilityStatus(Specimen.RESERVED);
 			return event;
 		}).collect(Collectors.toList());
 		daoFactory.getDistributionProtocolDao().saveReservedEvents(events);
@@ -1134,7 +1135,7 @@ public class DistributionOrderServiceImpl implements DistributionOrderService, O
 			event.setComments(comments);
 			events.add(event);
 
-			specimen.setReservedEvent(null);
+			specimen.cancelReservation();
 		}
 
 		daoFactory.getDistributionProtocolDao().saveReservedEvents(events);

@@ -528,45 +528,33 @@ angular.module('os.biospecimen.participant.specimen-tree',
     }
   })
 
-  .directive('osTreeNodeStatus', function($translate) {
+  .directive('osSpecimenStatusIcon', function($parse, SpecimenUtil) {
+    return {
+      restrict: 'E',
+
+      replace: true,
+
+      template: '<span class="fa fa-circle"></span>',
+
+      link: function(scope, element, attrs) {
+        var spmn = $parse(attrs.specimen)(scope);
+        var result = SpecimenUtil.getStatusCss(spmn);
+        element.addClass(result.css);
+        element.attr('title', result.tooltip);
+      }
+    }
+  })
+
+  .directive('osTreeNodeStatus', function($parse, SpecimenUtil) {
 
     return {
       restrict: 'A',
 
-      scope: {
-        specimen: '=osTreeNodeStatus'
-      },
-
       link: function(scope, element, attrs) {
-        var specimen = scope.specimen, status = '';
-        if (specimen.status == 'Collected') {
-          if (specimen.activityStatus == 'Closed' && !specimen.distributionStatus) {
-            status = 'closed';
-          } else if (specimen.distributionStatus == 'Distributed') {
-            status = specimen.availableQty > 0 ? 'part-distributed' : 'distributed';
-          } else if (specimen.distributionStatus == 'Returned') {
-            status = 'returned';
-          } else if (specimen.reserved) {
-            status = 'reserved';
-          } else if (!specimen.storageLocation.name) {
-            status = 'virtual';
-          } else if (!specimen.reqId) {
-            status = 'unplanned';
-          } else {
-            status = 'collected';
-          }
-        } else if (specimen.status == 'Missed Collection') {
-          status = 'missed';
-        } else if (specimen.status == 'Not Collected') {
-          status = 'not-collected';
-        } else if (!specimen.status || specimen.status == 'Pending') {
-          status = 'pending';
-        }
-
-        element.addClass('os-status-' + status);
-
-        var key = $translate.instant('specimens.tree_node_statuses.' + status);
-        element.attr('title', key);
+        var spmn = $parse(attrs.osTreeNodeStatus)(scope);
+        var result = SpecimenUtil.getStatusCss(spmn);
+        element.addClass(result.css);
+        element.attr('title', result.tooltip);
       }
     }
   });

@@ -101,6 +101,13 @@
   padding: 0px 4px;
 }
 
+.panel .panel-heading .os-status-not-collected,
+.os-page-header .os-status-not-collected,
+.panel .panel-heading .os-status-missed,
+.os-page-header .os-status-missed {
+  background: #888;
+}
+
 .panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed {
   background: #d9534f!important;
@@ -137,6 +144,8 @@
 .panel .panel-heading .os-status-closed,
 .os-page-header .os-status-closed,
 .panel .panel-heading .os-status-reserved,
+.os-page-header .os-status-missed,
+.os-page-header .os-status-not-collected,
 .os-page-header .os-status-reserved,
 .os-page-header .os-status-pending,
 .os-page-header .os-status-virtual,
@@ -213,7 +222,7 @@
 }
 
 .os-key-values .value.os-status-not-collected {
-  background: #d9534f;
+  background: #888;
 }
 
 .os-key-values .value.os-status-virtual {

@@ -134,6 +134,7 @@
         <collectionKey>VISIT_ID</collectionKey>
         <column>CLINICAL_DIAGNOSIS_ID</column>
         <attribute>clinical_diagnosis</attribute>
+        <hidden>true</hidden>
       </pvField>
     </row>
     <row>

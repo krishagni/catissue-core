@@ -96,4 +96,10 @@
       <column name="ATTACHMENT_TYPE" type="${text.type}(16)"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen availability status">
+    <addColumn tableName="CATISSUE_SPECIMEN">
+      <column name="AVAILABILITY_STATUS" type="${text.type}(32)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

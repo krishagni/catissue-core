@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.administrative.services.impl;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -35,7 +36,6 @@ import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreList.Op;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerStoreListItem;
 import com.krishagni.catissueplus.core.administrative.domain.ContainerType;
-import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainerPosition;
@@ -77,6 +77,7 @@ import com.krishagni.catissueplus.core.biospecimen.events.FileDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.SpecimenInfo;
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
 import com.krishagni.catissueplus.core.biospecimen.repository.SpecimenListCriteria;
+import com.krishagni.catissueplus.core.biospecimen.repository.impl.BiospecimenDaoHelper;
 import com.krishagni.catissueplus.core.biospecimen.services.SpecimenResolver;
 import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.RollbackTransaction;
@@ -115,6 +116,10 @@ import com.krishagni.catissueplus.core.de.services.QueryService;
 import com.krishagni.catissueplus.core.de.services.SavedQueryErrorCode;
 import com.krishagni.catissueplus.core.exporter.domain.ExportJob;
 import com.krishagni.catissueplus.core.exporter.services.ExportService;
+import com.krishagni.catissueplus.core.query.Column;
+import com.krishagni.catissueplus.core.query.ListConfig;
+import com.krishagni.catissueplus.core.query.ListService;
+import com.krishagni.catissueplus.core.query.ListUtil;
 import com.krishagni.rbac.common.errors.RbacErrorCode;
 
 import edu.common.dynamicextensions.query.WideRowMode;
@@ -153,6 +158,8 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	private ThreadPoolTaskExecutor taskExecutor;
 
 	private StarredItemService starredItemSvc;
+
+	private ListService listSvc;
 
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
@@ -224,6 +231,10 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 
 	public void setStarredItemSvc(StarredItemService starredItemSvc) {
 		this.starredItemSvc = starredItemSvc;
+	}
+
+	public void setListSvc(ListService listSvc) {
+		this.listSvc = listSvc;
 	}
 
 	@Override
@@ -1105,6 +1116,7 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 		);
 
 		exportSvc.registerObjectsGenerator("storageContainer", this::getContainersGenerator);
+		listSvc.registerListConfigurator("container-specimens-list-view", this::getSpecimensListConfig);
 	}
 
 	private StorageContainerListCriteria addContainerListCriteria(StorageContainerListCriteria crit) {
@@ -1343,9 +1355,18 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 	}
 
 	private SpecimenListCriteria addSiteCpRestrictions(SpecimenListCriteria crit, StorageContainer container) {
+		return crit.siteCps(getReadAccessContainerSiteCps(container));
+	}
+
+	private List<SiteCpPair> getReadAccessContainerSiteCps(StorageContainer container) {
 		Set<SiteCpPair> siteCps = AccessCtrlMgr.getInstance().getReadAccessContainerSiteCps();
+		if (siteCps != null && siteCps.isEmpty()) {
+			throw OpenSpecimenException.userError(RbacErrorCode.ACCESS_DENIED);
+		}
+
+		List<SiteCpPair> result = null;
 		if (siteCps != null) {
-			List<SiteCpPair> contSiteCps = siteCps.stream()
+			result = siteCps.stream()
 				.filter(siteCp -> {
 					if (siteCp.getSiteId() == null) {
 						return siteCp.getInstituteId().equals(container.getInstitute().getId());
@@ -1354,11 +1375,9 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 					}
 				})
 				.collect(Collectors.toList());
-
-			crit.siteCps(contSiteCps);
 		}
 
-		return crit;
+		return result;
 	}
 	
 	private StorageContainerPosition createChildContainerPosition(
@@ -1693,6 +1712,65 @@ public class StorageContainerServiceImpl implements StorageContainerService, Obj
 				Utility.writeKeyValuesToCsv(out, headers);
 			}
 		});
+	}
+
+	private ListConfig getSpecimensListConfig(Map<String, Object> req) {
+		Number containerId = (Number) req.get("containerId");
+		if (containerId == null) {
+			containerId = (Number) req.get("objectId");
+		}
+
+		if (containerId == null) {
+			throw OpenSpecimenException.userError(StorageContainerErrorCode.ID_REQ);
+		}
+
+		StorageContainer container = getContainer(containerId.longValue(), null);
+		AccessCtrlMgr.getInstance().ensureReadContainerRights(container);
+
+		ListConfig cfg = ListUtil.getSpecimensListConfig("container-specimens-list-view", true);
+		ListUtil.addHiddenFieldsOfSpecimen(cfg);
+		if (cfg == null) {
+			return null;
+		}
+
+		String restriction = "Specimen.specimenPosition.allAncestors.ancestorId = " + container.getId();
+
+		List<SiteCpPair> siteCps = getReadAccessContainerSiteCps(container);
+		boolean useMrnSites = AccessCtrlMgr.getInstance().isAccessRestrictedBasedOnMrn();
+		String cpSitesCond = BiospecimenDaoHelper.getInstance().getSiteCpsCondAql(siteCps, useMrnSites);
+		if (StringUtils.isNotBlank(cpSitesCond)) {
+			restriction += " and " + cpSitesCond;
+		}
+
+		List<Column> orderBy;
+		if (container.isDimensionless()) {
+			Column positionId = new Column();
+			positionId.setExpr("Specimen.specimenPosition.positionId");
+			positionId.setDirection("asc");
+
+			orderBy = Collections.singletonList(positionId);
+		} else {
+			Column name = new Column();
+			name.setExpr("Specimen.specimenPosition.containerName");
+			name.setDirection("asc");
+
+			Column row = new Column();
+			row.setExpr("Specimen.specimenPosition.positionDimensionTwoString");
+			row.setDirection("asc");
+
+			Column col = new Column();
+			col.setExpr("Specimen.specimenPosition.positionDimensionOneString");
+			col.setDirection("asc");
+
+			orderBy = Arrays.asList(name, row, col);
+		}
+
+
+		cfg.setDrivingForm("Specimen");
+		cfg.setRestriction(restriction);
+		cfg.setDistinct(true);
+		cfg.setOrderBy(orderBy);
+		return ListUtil.setListLimit(cfg, req);
 	}
 
 	private Function<ExportJob, List<? extends Object>> getContainersGenerator() {

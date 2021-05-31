@@ -104,7 +104,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 	
 	private String code;
 
-	private String distributionStatus;
+	private String availabilityStatus;
 	
 	private Integer freezeThawCycles;
 
@@ -424,12 +424,12 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		this.code = code;
 	}
 
-	public String getDistributionStatus() {
-		return distributionStatus;
+	public String getAvailabilityStatus() {
+		return availabilityStatus;
 	}
 
-	public void setDistributionStatus(String distributionStatus) {
-		this.distributionStatus = distributionStatus;
+	public void setAvailabilityStatus(String availabilityStatus) {
+		this.availabilityStatus = availabilityStatus;
 	}
 
 	public Integer getFreezeThawCycles() {
@@ -506,6 +506,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setStorageLocation(location);
 
 		result.setActivityStatus(specimen.getActivityStatus());
+		result.setAvailabilityStatus(specimen.getAvailabilityStatus());
 		result.setCreatedOn(specimen.getCreatedOn());
 		result.setStorageType(sr != null ? sr.getStorageType() : null);
 		result.setVisitId(specimen.getVisit().getId());
@@ -563,6 +564,7 @@ public class SpecimenInfo extends AttributeModifiedSupport implements Comparable
 		result.setConcentration(anticipated.getConcentration());
 		result.setParentId(null);
 		result.setCollectionContainer(PermissibleValue.getValue(anticipated.getCollectionContainer()));
+		result.setAvailabilityStatus(Specimen.PENDING);
 
 		StorageLocationSummary location = new StorageLocationSummary();
 		result.setStorageLocation(location);

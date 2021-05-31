@@ -38,6 +38,10 @@ public class ListUtil {
 		specimenClass.setExpr("Specimen.class");
 		specimenClass.setCaption("specimenClass");
 
+		Column availabilityStatus = new Column();
+		availabilityStatus.setExpr("Specimen.availabilityStatus");
+		availabilityStatus.setCaption("availabilityStatus");
+
 		Column cpId = new Column();
 		cpId.setExpr("CollectionProtocol.id");
 		cpId.setCaption("cpId");
@@ -46,6 +50,7 @@ public class ListUtil {
 		hiddenColumns.add(id);
 		hiddenColumns.add(type);
 		hiddenColumns.add(specimenClass);
+		hiddenColumns.add(availabilityStatus);
 		hiddenColumns.add(cpId);
 		cfg.setHiddenColumns(hiddenColumns);
 		return cfg;

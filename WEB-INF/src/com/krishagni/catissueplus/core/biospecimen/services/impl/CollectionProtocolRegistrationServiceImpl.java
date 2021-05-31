@@ -631,7 +631,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 			List<SpecimenDetail> specimens = Collections.emptyList();			
 			if (crit.getVisitId() != null || crit.getEventId() == null) {
 				specimens = getSpecimensByVisit(cpr, crit.getVisitId(), !phiAccess, excludeChildren);
-				checkDistributedSpecimens(specimens);
 			} else if (crit.getEventId() != null) {
 				specimens = getAnticipatedSpecimens(crit.getEventId(), excludeChildren);
 			}
@@ -1158,40 +1157,6 @@ public class CollectionProtocolRegistrationServiceImpl implements CollectionProt
 		}
 
 		return regs;
-	}
-
-	private void checkDistributedSpecimens(List<SpecimenDetail> specimens) {
-		List<Long> specimenIds = getSpecimenIds(specimens);
-		if (CollectionUtils.isEmpty(specimenIds)) {
-			return;
-		}
-		
-		Map<Long, String> distStatus = daoFactory.getSpecimenDao().getDistributionStatus(specimenIds);
-		setDistributedStatus(specimens, distStatus);
-	}
-
-	private void setDistributedStatus(List<SpecimenDetail> specimens, Map<Long, String> distStatus) {
-		for (SpecimenDetail detail : specimens) {
-			detail.setDistributionStatus(distStatus.get(detail.getId()));
-			if (CollectionUtils.isNotEmpty(detail.getChildren())) {
-				setDistributedStatus(detail.getChildren(), distStatus);
-			}
-		}
-	}
-
-	private List<Long> getSpecimenIds(List<SpecimenDetail> specimens) {
-		List<Long> ids = new ArrayList<Long>();
-		for (SpecimenDetail detail : specimens) {
-			if (detail.getId() != null) {
-				ids.add(detail.getId());
-			}
-
-			if (CollectionUtils.isNotEmpty(detail.getChildren())) {
-				ids.addAll(getSpecimenIds(detail.getChildren()));
-			}
-		}
-
-		return ids;
 	}
 
 	private List<CollectionProtocolRegistration> getOtherCprs(CollectionProtocolRegistration cpr) {

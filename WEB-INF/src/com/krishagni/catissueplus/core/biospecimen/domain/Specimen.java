@@ -69,6 +69,14 @@ public class Specimen extends BaseExtensionEntity {
 
 	public static final String NOT_COLLECTED = "Not Collected";
 
+	public static final String AVAILABLE = "Available";
+
+	public static final String DISPOSED = "Closed";
+
+	public static final String DISTRIBUTED = "Distributed";
+
+	public static final String RESERVED = "Reserved";
+
 	public static final String ACCEPTABLE = "Acceptable";
 	
 	public static final String NOT_SPECIFIED = "Not Specified";
@@ -108,6 +116,8 @@ public class Specimen extends BaseExtensionEntity {
 	private BigDecimal availableQuantity;
 
 	private String collectionStatus;
+
+	private String availabilityStatus;
 	
 	private Set<PermissibleValue> biohazards = new HashSet<>();
 
@@ -369,6 +379,10 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public String getActivityStatus() {
+		if (StringUtils.isBlank(activityStatus)) {
+			activityStatus = Status.ACTIVITY_STATUS_ACTIVE.getStatus();
+		}
+
 		return activityStatus;
 	}
 
@@ -426,6 +440,14 @@ public class Specimen extends BaseExtensionEntity {
 
 	public void setCollectionStatus(String collectionStatus) {
 		this.collectionStatus = collectionStatus;
+	}
+
+	public String getAvailabilityStatus() {
+		return availabilityStatus;
+	}
+
+	public void setAvailabilityStatus(String availabilityStatus) {
+		this.availabilityStatus = availabilityStatus;
 	}
 
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
@@ -862,6 +884,7 @@ public class Specimen extends BaseExtensionEntity {
 		setLabel(Utility.getDisabledValue(getLabel(), 255));
 		setBarcode(Utility.getDisabledValue(getBarcode(), 255));
 		setActivityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
+		updateAvailableStatus();
 		FormUtil.getInstance().deleteRecords(getCpId(), Arrays.asList("Specimen", "SpecimenEvent", "SpecimenExtension"), getId());
 	}
 	
@@ -979,6 +1002,7 @@ public class Specimen extends BaseExtensionEntity {
 		transferTo(holdingLocation, user, time, reason);
 		addDisposalEvent(user, time, reason);		
 		setActivityStatus(Status.ACTIVITY_STATUS_CLOSED.getStatus());
+		updateAvailableStatus();
 	}
 	
 	public List<DependentEntityDetail> getDependentEntities() {
@@ -991,10 +1015,7 @@ public class Specimen extends BaseExtensionEntity {
 		}
 		
 		setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());
-
-		//
-		// TODO: we need to add a reopen event here
-		//
+		updateAvailableStatus();
 	}
 		
 	public CollectionProtocolRegistration getRegistration() {
@@ -1215,7 +1236,7 @@ public class Specimen extends BaseExtensionEntity {
 		//
 		// cancel the reservation so that it can be distributed subsequently if available
 		//
-		setReservedEvent(null);
+		cancelReservation();
 
 		//
 		// close specimen if explicitly closed or no quantity available
@@ -1223,6 +1244,7 @@ public class Specimen extends BaseExtensionEntity {
 		if (item.isDistributedAndClosed()) {
 			String dpShortTitle = item.getOrder().getDistributionProtocol().getShortTitle();
 			close(item.getOrder().getDistributor(), item.getOrder().getExecutionDate(), "Distributed to " + dpShortTitle);
+			setAvailabilityStatus(DISTRIBUTED);
 		}
 	}
 
@@ -1245,6 +1267,13 @@ public class Specimen extends BaseExtensionEntity {
 		}
 
 		SpecimenReturnEvent.createForDistributionOrderItem(item).saveRecordEntry();
+	}
+
+	public void cancelReservation() {
+		if (getReservedEvent() != null) {
+			setReservedEvent(null);
+			updateAvailableStatus();
+		}
 	}
 
 	private void updateCreatedOn(Date createdOn) {
@@ -1562,6 +1591,20 @@ public class Specimen extends BaseExtensionEntity {
 		preCreatedSpmnsMap.putAll(createdSpmns.stream().collect(Collectors.toMap(Specimen::getReqId, s -> s)));
 	}
 
+	public void updateAvailableStatus() {
+		if (isActive()) {
+			if (isCollected()) {
+				setAvailabilityStatus(isReserved() ? Specimen.RESERVED : Specimen.AVAILABLE);
+			} else {
+				setAvailabilityStatus(getCollectionStatus());
+			}
+		} else if (isClosed()) {
+			setAvailabilityStatus(Specimen.DISPOSED);
+		} else if (isDeleted()) {
+			setAvailabilityStatus(Status.ACTIVITY_STATUS_DISABLED.getStatus());
+		}
+	}
+
 	//
 	// HSEARCH-1350: https://hibernate.atlassian.net/browse/HSEARCH-1350
 	//
@@ -1659,37 +1702,21 @@ public class Specimen extends BaseExtensionEntity {
 	}
 
 	public static List<Specimen> sortByLabels(Collection<Specimen> specimens, final List<String> labels) {
-		List<Specimen> result = new ArrayList<Specimen>(specimens);
-		Collections.sort(result, new Comparator<Specimen>() {
-			@Override
-			public int compare(Specimen s1, Specimen s2) {
-				int s1Idx = labels.indexOf(s1.getLabel());
-				int s2Idx = labels.indexOf(s2.getLabel());
-				return s1Idx - s2Idx;
-			}
-		});
-
-		return result;
+		return specimens.stream()
+			.sorted(Comparator.comparingInt((s) -> labels.indexOf(s.getLabel())))
+			.collect(Collectors.toList());
 	}
 
 	public static List<Specimen> sortByIds(Collection<Specimen> specimens, final List<Long> ids) {
-		List<Specimen> result = new ArrayList<>(specimens);
-		Collections.sort(result, new Comparator<Specimen>() {
-			@Override
-			public int compare(Specimen s1, Specimen s2) {
-				int s1Idx = ids.indexOf(s1.getId());
-				int s2Idx = ids.indexOf(s2.getId());
-				return s1Idx - s2Idx;
-			}
-		});
-
-		return result;
+		return specimens.stream()
+			.sorted(Comparator.comparingInt((s) -> ids.indexOf(s.getId())))
+			.collect(Collectors.toList());
 	}
 
 	public static List<Specimen> sortByBarcodes(Collection<Specimen> specimens, final List<String> barcodes) {
-		List<Specimen> result = new ArrayList<>(specimens);
-		result.sort(Comparator.comparingInt((s) -> barcodes.indexOf(s.getBarcode())));
-		return result;
+		return specimens.stream()
+			.sorted(Comparator.comparingInt((s) -> barcodes.indexOf(s.getBarcode())))
+			.collect(Collectors.toList());
 	}
 
 	public static boolean isValidLineage(String lineage) {
@@ -1800,6 +1827,7 @@ public class Specimen extends BaseExtensionEntity {
 	
 	private void updateHierarchyStatus0(String status) {
 		setCollectionStatus(status);
+		updateAvailableStatus();
 
 		if (getId() != null && !isCollected(status)) {
 			setAvailableQuantity(BigDecimal.ZERO);
@@ -1879,6 +1907,7 @@ public class Specimen extends BaseExtensionEntity {
 			specimen.setVisit(getVisit());
 			specimen.setParentSpecimen(this);
 			specimen.setCollectionStatus(status);
+			specimen.updateAvailableStatus();
 			getChildCollection().add(specimen);
 
 			result.add(specimen);
@@ -1892,6 +1921,7 @@ public class Specimen extends BaseExtensionEntity {
 		Specimen parentSpmn = childSpmn.getParentSpecimen();
 		while (parentSpmn != null && parentSpmn.isPending()) {
 			parentSpmn.setCollectionStatus(COLLECTED);
+			parentSpmn.updateAvailableStatus();
 			parentSpmn.setStatusChanged(true);
 
 			Date createdOn = childSpmn.getCreatedOn();
@@ -1955,6 +1985,7 @@ public class Specimen extends BaseExtensionEntity {
 			specimen.setParentSpecimen(parent);
 			specimen.setVisit(parent.getVisit());
 			specimen.setCollectionStatus(Specimen.PENDING);
+			specimen.updateAvailableStatus();
 			specimen.setLabelIfEmpty();
 
 			parent.addChildSpecimen(specimen);

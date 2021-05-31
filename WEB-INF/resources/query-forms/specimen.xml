@@ -235,6 +235,24 @@
     </row>
 
     <row>
+      <dropDown>
+        <name>availabilityStatus</name>
+        <udn>availabilityStatus</udn>
+        <caption>#getMessage("specimen_availability_status")</caption>
+        <column>AVAILABILITY_STATUS</column>
+        <options>
+          <option><value>Available</value></option>
+          <option><value>Pending</value></option>
+          <option><value>Not Collected</value></option>
+          <option><value>Missed Collection</value></option>
+          <option><value>Reserved</value></option>
+          <option><value>Distributed</value></option>
+          <option><value>Closed</value></option>
+        </options>
+      </dropDown>
+    </row>
+
+    <row>
       <textField>
         <name>comments</name>
         <udn>comments</udn>
@@ -262,6 +280,14 @@
         <parentKey>IDENTIFIER</parentKey>
         <primaryKey>SPECIMEN_ID</primaryKey>
         <row>
+          <numberField>
+            <name>positionId</name>
+            <udn>positionId</udn>
+            <caption>#getMessage("specimen_spec_position_id")</caption>
+            <column>POSITION_IDENTIFIER</column>
+            <hidden>true</hidden>
+          </numberField>
+
           <textField>
             <name>containerName</name>
             <udn>containerName</udn>

@@ -1008,7 +1008,7 @@
       "reserved": "Reserved",
       "virtual": "Collected, Not Stored",
       "unplanned": "Unplanned Collection, Stored",
-      "collected": "Planned Collection, Stored",
+      "collected": "Available",
       "missed": "Missed Collection",
       "not-collected": "Not Collected",
       "pending": "Pending"

@@ -98,6 +98,22 @@
             <column>IDENTIFIER</column>
           </userField>
         </row>
+        <row>
+          <textField>
+            <name>firstName</name>
+            <udn>firstName</udn>
+            <caption>#getMessage("cp_pi_fname")</caption>
+            <column>FIRST_NAME</column>
+          </textField>
+        </row>
+        <row>
+          <textField>
+            <name>lastName</name>
+            <udn>lastName</udn>
+            <caption>#getMessage("cp_pi_lname")</caption>
+            <column>LAST_NAME</column>
+          </textField>
+        </row>
         <row> 
           <textField>
             <name>email</name>
@@ -143,6 +159,22 @@
             <caption>#getMessage("cp_coordinator_name")</caption>
             <column>IDENTIFIER</column>
           </userField>
+        </row>
+        <row>
+          <textField>
+            <name>firstName</name>
+            <udn>firstName</udn>
+            <caption>#getMessage("cp_coordinator_fname")</caption>
+            <column>FIRST_NAME</column>
+          </textField>
+        </row>
+        <row>
+          <textField>
+            <name>lastName</name>
+            <udn>lastName</udn>
+            <caption>#getMessage("cp_coordinator_lname")</caption>
+            <column>LAST_NAME</column>
+          </textField>
         </row>
         <row>   
           <textField>

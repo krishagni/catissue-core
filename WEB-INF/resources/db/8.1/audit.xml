@@ -44,4 +44,11 @@
       <column name="attachmentType_MOD" type="${boolean.type}"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="vpawar" id="Specimen availability status">
+    <addColumn tableName="CATISSUE_SPECIMEN_AUD">
+      <column name="AVAILABILITY_STATUS" type="${text.type}(32)"/>
+      <column name="availabilityStatus_MOD" type="${boolean.type}"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

@@ -648,6 +648,7 @@
     <property name="labelPrinter" ref="defaultContainerLabelPrinter"/>
     <property name="taskExecutor" ref="taskExecutor"/>
     <property name="starredItemSvc" ref="starredItemSvc"/>
+    <property name="listSvc" ref="listSvc"/>
   </bean>
 
   <bean id="containerTypeFactory" class="com.krishagni.catissueplus.core.administrative.domain.factory.impl.ContainerTypeFactoryImpl">

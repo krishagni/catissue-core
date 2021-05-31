@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListDetail {
+	private String icons;
+
 	private List<Column> columns = new ArrayList<>();
 
 	private List<Column> fixedColumns;
@@ -11,6 +13,14 @@ public class ListDetail {
 	private List<Row> rows = new ArrayList<>();
 
 	private int size = -1;
+
+	public String getIcons() {
+		return icons;
+	}
+
+	public void setIcons(String icons) {
+		this.icons = icons;
+	}
 
 	public List<Column> getColumns() {
 		return columns;

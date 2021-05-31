@@ -126,6 +126,9 @@
     {
         "name": "specimen-list-view",
         "data": {
+            "icons": [
+                "<os-specimen-status-icon specimen=\"row\"></os-specimen-status-icon>"
+            ],
             "columns": [
                 {
                     "expr": "Specimen.label",
@@ -199,6 +202,19 @@
                 {
                     "expr": "Specimen.availableQty",
                     "caption": "Quantity"
+                },
+                {
+                    "expr": "Specimen.availabilityStatus",
+                    "caption": "Status",
+                    "values": [
+                        "Available",
+                        "Closed",
+                        "Distributed",
+                        "Missed Collection",
+                        "Not Collected",
+                        "Pending",
+                        "Reserved"
+                    ]
                 }
             ]
         }
@@ -206,6 +222,9 @@
     {
         "name": "common-specimens-list-view",
         "data": {
+            "icons": [
+                "<os-specimen-status-icon specimen=\"row\"></os-specimen-status-icon>"
+            ],
             "columns": [
                 {
                     "expr": "Participant.ppid",
@@ -283,6 +302,19 @@
                 {
                     "expr": "Specimen.specimenPosition.containerName",
                     "caption": "Storage Container"
+                },
+                {
+                    "expr": "Specimen.availabilityStatus",
+                    "caption": "Status",
+                    "values": [
+                        "Available",
+                        "Closed",
+                        "Distributed",
+                        "Missed Collection",
+                        "Not Collected",
+                        "Pending",
+                        "Reserved"
+                    ]
                 }
             ]
         }
@@ -290,6 +322,9 @@
     {
         "name": "order-specimens-list-view",
         "data": {
+            "icons": [
+                "<os-specimen-status-icon specimen=\"row\"></os-specimen-status-icon>"
+            ],
             "columns": [
                 {
                     "expr": "Specimen.specimenOrders.label",

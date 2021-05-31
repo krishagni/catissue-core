@@ -21,6 +21,8 @@ public class ListConfig {
 
 	private boolean hideEmptyColumns;
 
+	private List<String> icons = new ArrayList<>();
+
 	private List<Column> orderBy = new ArrayList<>();
 
 	private List<Column> filters = new ArrayList<>();
@@ -118,6 +120,14 @@ public class ListConfig {
 
 	public void setHiddenColumns(List<Column> hiddenColumns) {
 		this.hiddenColumns = hiddenColumns;
+	}
+
+	public List<String> getIcons() {
+		return icons;
+	}
+
+	public void setIcons(List<String> icons) {
+		this.icons = icons;
 	}
 
 	public List<Column> getFixedColumns() {

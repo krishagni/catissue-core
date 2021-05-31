@@ -385,6 +385,7 @@ public class SpecimenFactoryImpl implements SpecimenFactory {
 		SpecimenRequirement parentSr = sr.getParentSpecimenRequirement();
 		Specimen parent = parentSr.getSpecimen();
 		parent.setCollectionStatus(Specimen.PENDING);
+		parent.setAvailabilityStatus(Specimen.PENDING);
 		parent.setVisit(specimen.getVisit());
 		parent.setCollectionProtocol(specimen.getVisit().getCollectionProtocol());
 		parent.setActivityStatus(Status.ACTIVITY_STATUS_ACTIVE.getStatus());

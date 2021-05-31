@@ -1333,6 +1333,14 @@ public class AccessCtrlMgr {
 		return cpIds;
 	}
 
+	public List<Long> getSiteCpIds(Long siteId) {
+		return daoFactory.getCollectionProtocolDao().getCpIdsBySiteIds(null, Collections.singleton(siteId), null);
+	}
+
+	public List<Long> getInstituteCpIds(Long instituteId) {
+		return daoFactory.getCollectionProtocolDao().getCpIdsBySiteIds(Collections.singleton(instituteId), null, null);
+	}
+
 	private boolean canUserPerformOp(Resource resource, Operation[] ops) {
 		return canUserPerformOp(AuthUtil.getCurrentUser().getId(), resource, ops);
 	}
