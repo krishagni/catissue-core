@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import Icon from '@/components/Icon.vue';
+import Icon from '@/common/components/Icon.vue';
 
 export default {
   props: ['leftIcon', 'rightIcon', 'label'],

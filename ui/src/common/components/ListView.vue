@@ -57,11 +57,11 @@
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
-import FormGroup from '@/components/FormGroup.vue';
-import Col from '@/components/Col.vue';
-import InputText from '@/components/InputText.vue';
-import Dropdown from '@/components/Dropdown.vue';
-import Button from '@/components/Button.vue';
+import FormGroup from '@/common/components/FormGroup.vue';
+import Col from '@/common/components/Col.vue';
+import InputText from '@/common/components/InputText.vue';
+import Dropdown from '@/common/components/Dropdown.vue';
+import Button from '@/common/components/Button.vue';
 
 export default {
   props: [ 'data', 'columns', 'filters', 'query', 'allowSelection'],

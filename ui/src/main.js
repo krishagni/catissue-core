@@ -15,8 +15,8 @@ import ToastService from 'primevue/toastservice';
 
 import router from './router'
 import App from './App.vue'
-import http from '@/services/HttpClient.js';
-import alerts from '@/services/Alerts.js';
+import http from '@/common/services/HttpClient.js';
+import alerts from '@/common/services/Alerts.js';
 
 const ui = {
   ngServer: 'http://localhost:9000/'

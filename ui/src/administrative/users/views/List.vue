@@ -47,18 +47,18 @@
 import { reactive, inject } from 'vue';
 import { format } from 'date-fns';
 
-import ListView from '@/components/ListView.vue';
-import Page from '@/components/Page.vue';
-import PageHeader from '@/components/PageHeader.vue';
-import PageBody from '@/components/PageBody.vue';
-import PageToolbar from '@/components/PageToolbar.vue';
-import Button from '@/components/Button.vue';
-import Menu from '@/components/Menu.vue';
+import ListView from '@/common/components/ListView.vue';
+import Page from '@/common/components/Page.vue';
+import PageHeader from '@/common/components/PageHeader.vue';
+import PageBody from '@/common/components/PageBody.vue';
+import PageToolbar from '@/common/components/PageToolbar.vue';
+import Button from '@/common/components/Button.vue';
+import Menu from '@/common/components/Menu.vue';
 
-import http from '@/services/HttpClient.js';
-import routerSvc from '@/services/Router.js';
-import exportSvc from '@/services/ExportService.js';
-import itemsSvc from '@/services/ItemsHolder.js';
+import http from '@/common/services/HttpClient.js';
+import routerSvc from '@/common/services/Router.js';
+import exportSvc from '@/common/services/ExportService.js';
+import itemsSvc from '@/common/services/ItemsHolder.js';
 
 export default {
   name: 'UsersList',

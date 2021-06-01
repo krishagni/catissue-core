@@ -1,6 +1,6 @@
 
-import http from '@/services/HttpClient.js'
-import alerts from '@/services/Alerts.js'
+import http from '@/common/services/HttpClient.js'
+import alerts from '@/common/services/Alerts.js'
 
 class ExportService {
 

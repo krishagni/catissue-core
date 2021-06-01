@@ -8,7 +8,7 @@
 
 <script>
 import Menu from 'primevue/menu';
-import Button from '@/components/Button.vue';
+import Button from '@/common/components/Button.vue';
 
 export default {
   props: ['label', 'options'],
