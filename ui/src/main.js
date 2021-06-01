@@ -18,12 +18,22 @@ import App from './App.vue'
 import http from '@/common/services/HttpClient.js';
 import alerts from '@/common/services/Alerts.js';
 
+const app = createApp(App)
+  .use(router)
+  .use(PrimeVue)
+  .use(ToastService);
+
+alerts.toastSvc = app.config.globalProperties.$toast;
+library.add(fas);
+
 const ui = {
   ngServer: 'http://localhost:9000/'
 };
 
 window.parent.postMessage({op: 'getGlobalProps', requestor: 'vueapp'}, '*');
 window.parent.postMessage({op: 'getAuthToken', requestor: 'vueapp'}, '*');
+window.parent.postMessage({op: 'getUserDetails', requestor: 'vueapp'}, '*');
+let count = 3;
 window.addEventListener('message', function(event) {
   if (event.data.op == 'getGlobalProps') {
     ui.os = event.data.resp.os || {};
@@ -38,20 +48,20 @@ window.addEventListener('message', function(event) {
     }
 
     http.path += 'rest/ng'
+
+    --count;
   } else if (event.data.op == 'getAuthToken') {
     ui.token = event.data.resp;
     http.headers['X-OS-API-TOKEN'] = ui.token; // localStorage.getItem('osAuthToken');
+    --count;
+  } else if (event.data.op == 'getUserDetails') {
+    Object.assign(ui, event.data.resp);
+    --count;
+  }
+
+  if (count == 0) {
+    app.mount('#app')
+    app.provide('ui', ui);
+    count = -1;
   }
 });
-
-const app = createApp(App)
-  .use(router)
-  .use(PrimeVue)
-  .use(ToastService);
-
-app.mount('#app')
-app.provide('ui', ui);
-
-alerts.toastSvc = app.config.globalProperties.$toast;
-library.add(fas);
-

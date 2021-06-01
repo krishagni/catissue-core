@@ -88,6 +88,10 @@ angular.module('openspecimen')
 
       currentUser: function() {
         return currentUser;
+      },
+
+      userRights: function() {
+        return userRights;
       }
     }
   });

@@ -333,7 +333,7 @@ osApp.config(function(
   })
   .run(function(
     $rootScope, $window, $document, $http, $cookies, $q,  $state, $translate, $translatePartialLoader,
-    AuthService, LocationChangeListener, ApiUtil, Setting, PluginReg, Util, ItemsHolder) {
+    AuthService, AuthorizationService, LocationChangeListener, ApiUtil, Setting, PluginReg, Util, ItemsHolder) {
 
     function isRedirectAllowed(st) {
       return !st.data || st.data.redirect !== false;
@@ -426,6 +426,13 @@ osApp.config(function(
         window.frames['vueapp'].postMessage({op: 'getGlobalProps', resp: ui}, '*');
       } else if (data.op == 'getAuthToken') {
         window.frames['vueapp'].postMessage({op: 'getAuthToken', resp: $window.localStorage['osAuthToken']}, '*');
+      } else if (data.op == 'getUserDetails') {
+        var resp = {
+          currentUser: JSON.parse(JSON.stringify(AuthorizationService.currentUser())),
+          userRights: AuthorizationService.userRights()
+        }
+
+        window.frames['vueapp'].postMessage({op: 'getUserDetails', resp: resp}, '*');
       } else if (data.op == 'changeRoute') {
         var dest = data.payload;
         var params = angular.extend(angular.extend({}, $state.params), dest.params || {});
