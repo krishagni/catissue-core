@@ -51,7 +51,7 @@
     width: 20%;
   }
 
-  .os-page-header /deep/ h3 {
+  .os-page-header :deep(h3) {
     margin-top: 0px;
     margin-bottom: 10px;
     font-size: 24px;

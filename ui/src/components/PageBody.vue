@@ -10,11 +10,11 @@
     padding: 10px 15px 0px;
   }
 
-  .os-page-body /deep/ .os-page-toolbar {
+  .os-page-body :deep(.os-page-toolbar) {
     max-height: 55px;
   }
 
-  .os-page-body /deep/ .os-page-toolbar + div {
+  .os-page-body :deep(.os-page-toolbar + div) {
     height: calc(100% - 55px);
   }
 </style>

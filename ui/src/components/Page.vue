@@ -10,7 +10,7 @@
     height: 100%;
   }
 
-  .os-page /deep/ .os-page-body {
+  .os-page :deep(.os-page-body) {
     height: calc(100% - 50px);
     overflow-y: auto;
   }
