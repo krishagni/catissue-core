@@ -25,6 +25,8 @@
 
             <Button left-icon="check" label="Reactivate" @click="reactivateUsers" />
 
+            <Button left-icon="trash" label="Delete" @click="deleteUsers" />
+
             <Button left-icon="lock" label="Lock" @click="lockUsers" />
 
             <Button left-icon="unlock" label="Unlock" @click="unlockUsers" />
@@ -49,6 +51,12 @@
         ref="listView"
       >
       </ListView>
+
+      <ConfirmDelete ref="deleteDialog">
+        <template #message>
+          <span>Are you sure you want to delete the selected users?</span>
+        </template>
+      </ConfirmDelete>
     </PageBody>
   </Page>
 </template>
@@ -64,6 +72,7 @@ import PageBody from '@/common/components/PageBody.vue';
 import PageToolbar from '@/common/components/PageToolbar.vue';
 import Button from '@/common/components/Button.vue';
 import Menu from '@/common/components/Menu.vue';
+import ConfirmDelete from '@/common/components/ConfirmDelete.vue';
 
 import instituteSvc from '@/administrative/services/Institute.js';
 import userGrpSvc from '@/administrative/services/UserGroup.js';
@@ -88,7 +97,8 @@ export default {
     PageToolbar,
     Button,
     ListView,
-    Menu
+    Menu,
+    ConfirmDelete
   },
 
   setup(props) {
@@ -194,7 +204,7 @@ export default {
     updateStatus: function(fromStatuses, toStatus, msg) {
       let users = this.ctx.selectedUsers
         .map(user => user.rowObject)
-        .filter(user => (fromStatuses || []).indexOf(user.activityStatus) != -1);
+        .filter(user => !fromStatuses || fromStatuses.length == 0 || fromStatuses.indexOf(user.activityStatus) != -1);
 
       let usersMap = {};
       users.forEach(u => usersMap[u.id] = u);
@@ -226,6 +236,23 @@ export default {
 
     approveUsers: function() {
       this.updateStatus(['Pending'], 'Active', 'sign-up request approved');
+    },
+
+    deleteUsers: function() {
+      let users = this.ctx.selectedUsers.map(user => user.rowObject);
+
+      if (!this.ui.currentUser.admin) {
+        let admins = users.filter(user => user.admin == true)
+          .map(user => user.firstName + ' ' + user.lastName)
+          .join(',');
+
+        if (admins.length > 0) {
+          alertSvc.error('Super administrator rights required to delete admin users: ' + admins);
+          return;
+        }
+      }
+
+      this.$refs.deleteDialog.open().then(() => this.updateStatus([], 'Disabled', 'deleted'));
     },
 
     ngGoto: routerSvc.ngGoto
