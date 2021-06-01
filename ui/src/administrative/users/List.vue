@@ -55,7 +55,9 @@ import PageToolbar from '@/common/components/PageToolbar.vue';
 import Button from '@/common/components/Button.vue';
 import Menu from '@/common/components/Menu.vue';
 
-import http from '@/common/services/HttpClient.js';
+import instituteSvc from '@/administrative/services/User.js';
+import userGrpSvc from '@/administrative/services/User.js';
+import userSvc from '@/administrative/services/User.js';
 import routerSvc from '@/common/services/Router.js';
 import exportSvc from '@/common/services/ExportService.js';
 import itemsSvc from '@/common/services/ItemsHolder.js';
@@ -116,38 +118,26 @@ export default {
       filters: [
         { name: 'name', type: 'text', caption: 'Name' },
         { name: 'loginName', type: 'text', caption: 'Login Name' },
-        {
-          name: 'institute',
-          type: 'dropdown',
-          caption: 'Institute',
+        { name: 'institute', type: 'dropdown', caption: 'Institute',
           listSource: {
             displayProp: 'name',
             selectProp: 'name',
-            loadFn: (opts) => http.get('institutes', opts || { maxResults: 100 })
+            loadFn: (opts) => instituteSvc.getInstitutes(opts)
           }
         },
-        {
-          name: 'group',
-          type: 'dropdown',
-          caption: 'User Group',
+        { name: 'group', type: 'dropdown', caption: 'User Group',
           listSource: {
             displayProp: 'name',
             selectProp: 'name',
-            loadFn: (opts) => http.get('user-groups', opts || { maxResults: 100 })
+            loadFn: (opts) => userGrpSvc.getUserGroups(opts)
           }
         },
-        {
-          name: 'activityStatus',
-          type: 'dropdown',
-          caption: 'Activity Status',
+        { name: 'activityStatus', type: 'dropdown', caption: 'Activity Status',
           listSource: {
             options: ['Active', 'Archived', 'Expired', 'Locked', 'Pending']
           }
         },
-        {
-          name: 'type',
-          type: 'dropdown',
-          caption: 'Type',
+        { name: 'type', type: 'dropdown', caption: 'Type',
           listSource: {
             selectProp: 'name',
             displayProp: 'caption',
@@ -176,7 +166,7 @@ export default {
 
     loadUsers: function ({filters, uriEncoding}) {
       routerSvc.ngGoto(undefined, {filters: uriEncoding}, {notify: false});
-      http.get('users', filters).then(resp => this.ctx.users = resp);
+      userSvc.getUsers(filters).then(resp => this.ctx.users = resp);
     },
 
     onUsersSelection: function(selection) {
