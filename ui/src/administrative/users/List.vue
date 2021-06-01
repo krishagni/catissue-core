@@ -20,6 +20,16 @@
 
           <span v-if="ctx.selectedUsers.length > 0">
             <Button left-icon="edit" label="Edit" @click="bulkEdit" />
+
+            <Button left-icon="archive" label="Archive" @click="archiveUsers" />
+
+            <Button left-icon="check" label="Reactivate" @click="reactivateUsers" />
+
+            <Button left-icon="lock" label="Lock" @click="lockUsers" />
+
+            <Button left-icon="unlock" label="Unlock" @click="unlockUsers" />
+
+            <Button left-icon="thumbs-up" label="Approve" @click="approveUsers" />
           </span>
         </template>
 
@@ -55,12 +65,14 @@ import PageToolbar from '@/common/components/PageToolbar.vue';
 import Button from '@/common/components/Button.vue';
 import Menu from '@/common/components/Menu.vue';
 
-import instituteSvc from '@/administrative/services/User.js';
-import userGrpSvc from '@/administrative/services/User.js';
+import instituteSvc from '@/administrative/services/Institute.js';
+import userGrpSvc from '@/administrative/services/UserGroup.js';
 import userSvc from '@/administrative/services/User.js';
-import routerSvc from '@/common/services/Router.js';
+
+import alertSvc from '@/common/services/Alerts.js';
 import exportSvc from '@/common/services/ExportService.js';
 import itemsSvc from '@/common/services/ItemsHolder.js';
+import routerSvc from '@/common/services/Router.js';
 
 export default {
   name: 'UsersList',
@@ -177,6 +189,43 @@ export default {
       let users = this.ctx.selectedUsers.map(user => ({id: user.rowObject.id}));
       itemsSvc.ngSetItems('users', users);
       routerSvc.ngGoto('user-bulk-edit');
+    },
+
+    updateStatus: function(fromStatuses, toStatus, msg) {
+      let users = this.ctx.selectedUsers
+        .map(user => user.rowObject)
+        .filter(user => (fromStatuses || []).indexOf(user.activityStatus) != -1);
+
+      let usersMap = {};
+      users.forEach(u => usersMap[u.id] = u);
+
+      let self = this;
+      userSvc.bulkUpdate({detail: {activityStatus: toStatus}, ids: Object.keys(usersMap)}).then(
+        function(saved) {
+          alertSvc.success(saved.length + (saved.length != 1 ? ' users ' : ' user ') + msg);
+          self.$refs.listView.reload();
+        }
+      );
+    },
+
+    archiveUsers: function() {
+      this.updateStatus(['Locked', 'Active', 'Expired'], 'Closed', 'archived');
+    },
+
+    reactivateUsers: function() {
+      this.updateStatus(['Closed'], 'Active', 'reactivated');
+    },
+
+    lockUsers: function() {
+      this.updateStatus(['Active'], 'Locked', 'locked');
+    },
+
+    unlockUsers: function() {
+      this.updateStatus(['Locked'], 'Active', 'unlocked');
+    },
+
+    approveUsers: function() {
+      this.updateStatus(['Pending'], 'Active', 'sign-up request approved');
     },
 
     ngGoto: routerSvc.ngGoto

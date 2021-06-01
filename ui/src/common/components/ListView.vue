@@ -139,6 +139,11 @@ export default {
       }
 
       this.$emit('filtersUpdated', {filters: this.filterValues, uriEncoding: fb});
+    },
+
+    reload: function() {
+      this.selectedRows = [];
+      this.emitFiltersUpdated();
     }
   },
 
