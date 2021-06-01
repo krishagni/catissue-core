@@ -333,7 +333,7 @@ osApp.config(function(
   })
   .run(function(
     $rootScope, $window, $document, $http, $cookies, $q,  $state, $translate, $translatePartialLoader,
-    AuthService, LocationChangeListener, ApiUtil, Setting, PluginReg, Util) {
+    AuthService, LocationChangeListener, ApiUtil, Setting, PluginReg, Util, ItemsHolder) {
 
     function isRedirectAllowed(st) {
       return !st.data || st.data.redirect !== false;
@@ -430,6 +430,11 @@ osApp.config(function(
         var dest = data.payload;
         var params = angular.extend(angular.extend({}, $state.params), dest.params || {});
         $state.go(dest.state || $state.current.name, params, dest.opts || {});
+      } else if (data.op == 'addItems') {
+        data.payload = data.payload || {};
+        if (data.payload.type) {
+          ItemsHolder.setItems(data.payload.type, data.payload.items);
+        }
       }
     });
 

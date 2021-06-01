@@ -316,7 +316,7 @@ export default {
 .os-table :deep(.os-selection-cb .p-checkbox) {
   height: 15px;
   width: 15px;
-  vertical-align: text-bottom;
+  vertical-align: text-top;
 }
 
 .os-table :deep(.os-selection-cb .p-checkbox .p-checkbox-box) {

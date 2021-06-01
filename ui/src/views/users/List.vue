@@ -7,14 +7,20 @@
     </PageHeader>
     <PageBody>
       <PageToolbar>
-        <template v-if="ctx.selectedUsers.length == 0" #default>
-          <Button left-icon="plus" label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
+        <template #default>
+          <span v-if="ctx.selectedUsers.length == 0">
+            <Button left-icon="plus" label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
 
-          <Button left-icon="users" label="User Groups" @click="ngGoto('user-groups')" />
+            <Button left-icon="users" label="User Groups" @click="ngGoto('user-groups')" />
 
-          <Menu label="Import" :options="importOpts" />
+            <Menu label="Import" :options="importOpts" />
 
-          <Menu label="Export" :options="exportOpts" />
+            <Menu label="Export" :options="exportOpts" />
+          </span>
+
+          <span v-if="ctx.selectedUsers.length > 0">
+            <Button left-icon="edit" label="Edit" @click="bulkEdit" />
+          </span>
         </template>
 
         <template #right>
@@ -52,6 +58,7 @@ import Menu from '@/components/Menu.vue';
 import http from '@/services/HttpClient.js';
 import routerSvc from '@/services/Router.js';
 import exportSvc from '@/services/ExportService.js';
+import itemsSvc from '@/services/ItemsHolder.js';
 
 export default {
   name: 'UsersList',
@@ -174,6 +181,12 @@ export default {
 
     onUsersSelection: function(selection) {
       this.ctx.selectedUsers = selection;
+    },
+
+    bulkEdit: function() {
+      let users = this.ctx.selectedUsers.map(user => ({id: user.rowObject.id}));
+      itemsSvc.ngSetItems('users', users);
+      routerSvc.ngGoto('user-bulk-edit');
     },
 
     ngGoto: routerSvc.ngGoto
