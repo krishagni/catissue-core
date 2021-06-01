@@ -7,7 +7,7 @@
           <span v-show="selectedRows.length > 1">{{selectedRows.length}} records selected</span>
         </div>
         <data-table :value="list" v-model:selection="selectedRows">
-          <column v-if="allowSelection" selectionMode="multiple"></column>
+          <column class="os-selection-cb" v-if="allowSelection" selectionMode="multiple"></column>
           <column v-for="column of columns" :header="column.caption" :key="column.name">
             <template #body="slotProps">
               <span v-if="column.href">
@@ -307,5 +307,20 @@ export default {
 .os-table :deep(.p-checkbox .p-checkbox-box.p-highlight) {
   background: #2196F3;
   border-color: #2196F3;
+}
+
+.os-table :deep(th.os-selection-cb) {
+  vertical-align: middle;
+}
+
+.os-table :deep(.os-selection-cb .p-checkbox) {
+  height: 15px;
+  width: 15px;
+  vertical-align: text-bottom;
+}
+
+.os-table :deep(.os-selection-cb .p-checkbox .p-checkbox-box) {
+  height: 15px;
+  width: 15px;
 }
 </style>
