@@ -15,7 +15,7 @@
 
             <Menu label="Import" :options="importOpts" />
 
-            <Menu label="Export" :options="exportOpts" />
+            <Menu label="Export" :options="exportOpts" v-show-if-allowed="userResources.importOpts"/>
           </span>
 
           <span v-if="ctx.selectedUsers.length > 0">
@@ -87,6 +87,8 @@ import routerSvc from '@/common/services/Router.js';
 import userGroupSvc from '@/administrative/services/UserGroup.js';
 
 import AssignGroup from '@/administrative/user-groups/AssignGroup.vue';
+
+import userResources from './Resources.js';
 
 export default {
   name: 'UsersList',
@@ -183,7 +185,9 @@ export default {
     });
 
     return {
-      ctx
+      ctx,
+
+      userResources
     };
   },
 

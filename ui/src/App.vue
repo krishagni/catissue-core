@@ -64,4 +64,8 @@ a {
   color: #337ab7;
   text-decoration: none;
 }
+
+.os-hide {
+  display: none;
+}
 </style>

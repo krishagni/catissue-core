@@ -14,21 +14,22 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import ToastService from 'primevue/toastservice';
 
 import router from './router'
+import ui from './global.js';
 import App from './App.vue'
 import http from '@/common/services/HttpClient.js';
 import alerts from '@/common/services/Alerts.js';
+
+import showIfAllowed from '@/common/directives/ShowIfAllowed.js';
 
 const app = createApp(App)
   .use(router)
   .use(PrimeVue)
   .use(ToastService);
 
+app.directive('show-if-allowed', showIfAllowed);
+
 alerts.toastSvc = app.config.globalProperties.$toast;
 library.add(fas);
-
-const ui = {
-  ngServer: 'http://localhost:9000/'
-};
 
 window.parent.postMessage({op: 'getGlobalProps', requestor: 'vueapp'}, '*');
 window.parent.postMessage({op: 'getAuthToken', requestor: 'vueapp'}, '*');
