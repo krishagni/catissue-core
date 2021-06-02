@@ -11,7 +11,7 @@ class UserGroup {
 
   addUsers(group, users) {
     let payload = users.map(u => ({id: u.id}));
-    return http.put('user-groups/' + group.id + '/users', {op: 'ADD'}, payload);
+    return http.put('user-groups/' + group.id + '/users', payload, {op: 'ADD'});
   }
 }
 

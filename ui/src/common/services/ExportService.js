@@ -6,7 +6,7 @@ class ExportService {
 
   exportRecords(input) {
     alerts.info('Export records has been initiated. Records file download should start in a few moments..', -1, 'ei1');
-    http.post('export-jobs', {}, input).then(
+    http.post('export-jobs', input).then(
       function(savedJob) {
         alerts.remove('ei1');
         if (savedJob.status == 'COMPLETED') {

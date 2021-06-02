@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import alertSvc from './Alerts.js';
 
 class HttpClient {
   protocol = '';
@@ -15,43 +16,16 @@ class HttpClient {
   constructor() {
   }
 
-  async get(url, params) {
-    const res = await axios.get(
-      this.getUrl(url),
-      {
-        headers: this.headers,
-        params: params
-      },
-    );
-
-    return res.data;
+  get(url, params) {
+    return this.promise(() => axios.get(this.getUrl(url), this.config(params)));
   }
 
-  async post(url, params, data) {
-    const res = await axios.post(
-      this.getUrl(url),
-      data,
-      {
-        headers: this.headers,
-        params: params
-      },
-    );
-
-    return res.data;
+  async post(url, data, params) {
+    return this.promise(() => axios.post(this.getUrl(url), data, this.config(params)));
   }
 
-
-  async put(url, params, data) {
-    const res = await axios.put(
-      this.getUrl(url),
-      data,
-      {
-        headers: this.headers,
-        params: params
-      },
-    );
-
-    return res.data;
+  async put(url, data, params) {
+    return this.promise(() => axios.put(this.getUrl(url), data, this.config(params)));
   }
 
   getUrl(url) {
@@ -89,6 +63,28 @@ class HttpClient {
     link.href = url;
     link.target = '_blank';
     link.dispatchEvent(clickEvent);
+  }
+
+  config(params) {
+    return {headers: this.headers, params: params}
+  }
+
+  promise(apiCall) {
+    return new Promise((resolve) => {
+      apiCall()
+        .then(resp => resolve(resp.data))
+        .catch(e => {
+          let errors = e.response.data;
+          if (errors instanceof Array) {
+            let msg = errors.map(err => err.message + ' (' + err.code + ')').join(',');
+            alertSvc.error(msg);
+          } else if (errors) {
+            alertSvc.error(errors);
+          } else {
+            alertSvc.error(e.response.status + ': ' + e.response.statusText);
+          }
+        });
+    });
   }
 }
 

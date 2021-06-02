@@ -14,7 +14,7 @@ class User {
       return [];
     }
 
-    return http.put('users/bulk-update', {}, {detail: detail, ids: ids});
+    return http.put('users/bulk-update', {detail: detail, ids: ids});
   }
 }
 
