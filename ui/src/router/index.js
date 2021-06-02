@@ -8,7 +8,7 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "users-list" */ '../administrative/users/List.vue'),
-    props: (route) => ({filters: route.query && route.query.filters})
+    props: (route) => ({filters: route.query.filters, groupId: route.query.groupId})
   },
   {
     path: '/user-addedit/:userId',

@@ -9,9 +9,18 @@ class UserGroup {
     return http.get('user-groups', params);
   }
 
+  getUserGroup(id) {
+    return http.get('user-groups/' + id);
+  }
+
   addUsers(group, users) {
     let payload = users.map(u => ({id: u.id}));
     return http.put('user-groups/' + group.id + '/users', payload, {op: 'ADD'});
+  }
+
+  removeUsers(group, users) {
+    let payload = users.map(u => ({id: u.id}));
+    return http.put('user-groups/' + group.id + '/users', payload, {op: 'REMOVE'});
   }
 }
 

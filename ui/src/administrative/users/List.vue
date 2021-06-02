@@ -2,13 +2,14 @@
   <Page>
     <PageHeader>
       <template #default>
-        <h3>Users</h3>
+        <h3 v-if="!ctx.group">Users</h3>
+        <h3 v-else>{{ctx.group.name}}</h3>
       </template>
     </PageHeader>
-    <PageBody>
+    <PageBody v-if="ctx.inited">
       <PageToolbar>
         <template #default>
-          <span v-if="ctx.selectedUsers.length == 0">
+          <span v-if="ctx.selectedUsers.length == 0 && !ctx.group">
             <Button left-icon="plus" label="Create" @click="ngGoto('user-addedit', {userId: ''})" />
 
             <Button left-icon="users" label="User Groups" @click="ngGoto('user-groups')" />
@@ -21,7 +22,9 @@
           <span v-if="ctx.selectedUsers.length > 0">
             <Button left-icon="edit" label="Edit" @click="bulkEdit" />
 
-            <AssignGroup @addToGroup="addToGroup" />
+            <AssignGroup v-if="!ctx.group" @addToGroup="addToGroup" />
+
+            <Button v-if="ctx.group" left-icon="times" label="Remove from Group" @click="removeFromGroup"/>
 
             <Button left-icon="archive" label="Archive" @click="archiveUsers" />
 
@@ -97,7 +100,7 @@ export default {
 
   inject: ['ui'],
 
-  props: ['filters'],
+  props: ['filters', 'groupId'],
 
   components: {
     Page,
@@ -115,6 +118,10 @@ export default {
     const ui = inject('ui');
 
     let ctx = reactive({
+      inited: false,
+
+      group: undefined,
+
       users: [],
 
       selectedUsers: [],
@@ -186,6 +193,21 @@ export default {
       query: props.filters
     });
 
+    if (props.groupId) {
+      //
+      // remove institute and group filters
+      //
+      ctx.filters.splice(2, 2);
+
+      userGrpSvc.getUserGroup(props.groupId)
+        .then(group => {
+          ctx.group = group;
+          ctx.inited = true;
+        });
+    } else {
+      ctx.inited = true;
+    }
+
     return {
       ctx,
 
@@ -199,8 +221,17 @@ export default {
     },
 
     loadUsers: function ({filters, uriEncoding}) {
-      routerSvc.ngGoto(undefined, {filters: uriEncoding}, {notify: false});
-      userSvc.getUsers(filters).then(resp => this.ctx.users = resp);
+      let params = {filters: uriEncoding};
+      if (this.ctx.group) {
+        params.groupId = this.ctx.group.id;
+      }
+      routerSvc.ngGoto(undefined, params, {notify: false});
+
+      let opts = Object.assign({}, filters);
+      if (this.ctx.group) {
+        opts.group = this.ctx.group.name;
+      }
+      userSvc.getUsers(opts).then(resp => this.ctx.users = resp);
     },
 
     onUsersSelection: function(selection) {
@@ -253,6 +284,21 @@ export default {
         );
         routerSvc.ngGoto('user-group-addedit', {groupId: ''});
       }
+    },
+
+    removeFromGroup: function() {
+      let users = this.ctx.selectedUsers.map(user => user.rowObject);
+      if (!users || users.length == 0) {
+        return;
+      }
+
+      let self = this;
+      userGrpSvc.removeUsers(this.ctx.group, users).then(
+        function() {
+          alertSvc.success('Users removed from the group!');
+          self.$refs.listView.reload();
+        }
+      );
     },
 
     archiveUsers: function() {
