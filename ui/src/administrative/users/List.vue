@@ -17,6 +17,8 @@
             <Menu label="Import" :options="importOpts" />
 
             <Menu label="Export" :options="exportOpts" v-show-if-allowed="userResources.importOpts"/>
+
+            <Menu label="More" :options="moreOpts" />
           </span>
 
           <span v-if="ctx.selectedUsers.length > 0">
@@ -64,6 +66,8 @@
           <span>Are you sure you want to delete the selected users?</span>
         </template>
       </ConfirmDelete>
+
+      <Announcement ref="announcementDialog" />
     </PageBody>
   </Page>
 </template>
@@ -94,6 +98,7 @@ import userGroupSvc from '@/administrative/services/UserGroup.js';
 import AssignGroup from '@/administrative/user-groups/AssignGroup.vue';
 
 import userResources from './Resources.js';
+import Announcement from './Announcement.vue';
 
 export default {
   name: 'UsersList',
@@ -111,7 +116,8 @@ export default {
     ListView,
     Menu,
     ConfirmDelete,
-    AssignGroup
+    AssignGroup,
+    Announcement
   },
 
   setup(props) {
@@ -367,6 +373,12 @@ export default {
         { caption: 'Users', onSelect: () => this.exportRecords('user') },
         { caption: 'User Roles', onSelect: () => this.exportRecords('userRoles') },
         { caption: 'User Forms', onSelect: () => this.exportForms() }
+      ]
+    },
+
+    moreOpts: function() {
+      return [
+        { caption: 'New Announcement', onSelect: () => this.$refs.announcementDialog.open() }
       ]
     }
   }

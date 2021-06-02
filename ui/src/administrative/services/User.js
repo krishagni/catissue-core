@@ -16,6 +16,10 @@ class User {
 
     return http.put('users/bulk-update', {detail: detail, ids: ids});
   }
+
+  async broadcast(announcement) {
+    return http.post('users/announcements', announcement);
+  }
 }
 
 export default new User();
