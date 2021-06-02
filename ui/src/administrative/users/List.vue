@@ -34,6 +34,8 @@
             <Button left-icon="unlock" label="Unlock" @click="unlockUsers" />
 
             <Button left-icon="thumbs-up" label="Approve" @click="approveUsers" />
+
+            <Menu label="Export" :options="exportOpts" v-show-if-allowed="userResources.importOpts"/>
           </span>
         </template>
 
@@ -290,6 +292,17 @@ export default {
       this.$refs.deleteDialog.open().then(() => this.updateStatus([], 'Disabled', 'deleted'));
     },
 
+    exportRecords: function(type) {
+      let userIds = this.ctx.selectedUsers.map(user => user.rowObject.id);
+      exportSvc.exportRecords({objectType: type, recordIds: userIds});
+    },
+
+    exportForms: function() {
+      let users = this.ctx.selectedUsers.map(user => ({emailAddress: user.rowObject.emailAddress}));
+      itemsSvc.ngSetItems('users', users);
+      routerSvc.ngGoto('user-export-forms');
+    },
+
     ngGoto: routerSvc.ngGoto
   },
 
@@ -305,9 +318,9 @@ export default {
 
     exportOpts: function() {
       return [
-        { caption: 'Users', onSelect: () => exportSvc.exportRecords({objectType: 'user'}) },
-        { caption: 'User Roles', onSelect: () => exportSvc.exportRecords({objectType: 'userRoles'}) },
-        { caption: 'User Forms', onSelect: () => this.ngGoto('user-export-forms') }
+        { caption: 'Users', onSelect: () => this.exportRecords('user') },
+        { caption: 'User Roles', onSelect: () => this.exportRecords('userRoles') },
+        { caption: 'User Forms', onSelect: () => this.exportForms() }
       ]
     }
   }
