@@ -21,6 +21,8 @@
           <span v-if="ctx.selectedUsers.length > 0">
             <Button left-icon="edit" label="Edit" @click="bulkEdit" />
 
+            <AssignGroup @addToGroup="addToGroup" />
+
             <Button left-icon="archive" label="Archive" @click="archiveUsers" />
 
             <Button left-icon="check" label="Reactivate" @click="reactivateUsers" />
@@ -82,6 +84,9 @@ import alertSvc from '@/common/services/Alerts.js';
 import exportSvc from '@/common/services/ExportService.js';
 import itemsSvc from '@/common/services/ItemsHolder.js';
 import routerSvc from '@/common/services/Router.js';
+import userGroupSvc from '@/administrative/services/UserGroup.js';
+
+import AssignGroup from '@/administrative/user-groups/AssignGroup.vue';
 
 export default {
   name: 'UsersList',
@@ -98,7 +103,8 @@ export default {
     Button,
     ListView,
     Menu,
-    ConfirmDelete
+    ConfirmDelete,
+    AssignGroup
   },
 
   setup(props) {
@@ -216,6 +222,31 @@ export default {
           self.$refs.listView.reload();
         }
       );
+    },
+
+    addToGroup: function(group) {
+      let users = this.ctx.selectedUsers.map(user => user.rowObject);
+      if (users.length == 0) {
+        return;
+      }
+
+      let instituteId = users[0].instituteId;
+      for (let user of users) {
+        if (user.instituteId != instituteId) {
+          alertSvc.error('Users of multiple institutes cannot be added to the group.');
+          return;
+        }
+      }
+
+      if (group) {
+        userGroupSvc.addUsers(group, users).then(() => alertSvc.success('Users added to the group ' + group.name));
+      } else {
+        itemsSvc.ngSetItems(
+          'users',
+          users.map(user => ({id: user.id, insituteId: user.instituteId, instituteName: user.instituteName}))
+        );
+        routerSvc.ngGoto('user-group-addedit', {groupId: ''});
+      }
     },
 
     archiveUsers: function() {

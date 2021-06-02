@@ -9,6 +9,10 @@ class UserGroup {
     return http.get('user-groups', params);
   }
 
+  addUsers(group, users) {
+    let payload = users.map(u => ({id: u.id}));
+    return http.put('user-groups/' + group.id + '/users', {op: 'ADD'}, payload);
+  }
 }
 
 export default new UserGroup();

@@ -6,7 +6,7 @@
       <label>{{$attrs.placeholder}}</label>
     </div>
     <div v-else>
-      <p-input-text type="text" v-model="inputValue" />
+      <p-input-text type="text" v-model="inputValue" :placeholder="$attrs.placeholder"/>
     </div>
   </div>
 </template>
