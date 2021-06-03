@@ -34,6 +34,7 @@ library.add(fas);
 window.parent.postMessage({op: 'getGlobalProps', requestor: 'vueapp'}, '*');
 window.parent.postMessage({op: 'getAuthToken', requestor: 'vueapp'}, '*');
 window.parent.postMessage({op: 'getUserDetails', requestor: 'vueapp'}, '*');
+window.parent.postMessage({op: 'getAppMenuItems', requestor: 'vueapp'}, '*');
 let count = 3;
 window.addEventListener('message', function(event) {
   if (event.data.op == 'getGlobalProps') {
@@ -58,6 +59,8 @@ window.addEventListener('message', function(event) {
   } else if (event.data.op == 'getUserDetails') {
     Object.assign(ui, event.data.resp);
     --count;
+  } else if (event.data.op == 'getAppMenuItems') {
+    ui.menuItems = event.data.resp;
   }
 
   if (count == 0) {

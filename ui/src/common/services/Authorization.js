@@ -8,6 +8,12 @@ class Authorization {
       return true;
     }
 
+    if (opts == 'admin') {
+      return false;
+    } else if (opts == 'institute-admin') {
+      return ui.currentUser.instituteAdmin == true;
+    }
+
     let resources = opts.resources || [opts.resource];
     let allowed = false;
     for (let right of ui.userRights) {

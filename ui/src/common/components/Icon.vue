@@ -1,6 +1,6 @@
 
 <template>
-  <span class="os-icon-wrapper">
+  <span class="os-icon-wrapper" :style="style">
     <fa-icon :icon="name" />
   </span>
 </template>
@@ -9,10 +9,20 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 export default {
-  props: ['name'],
+  props: ['name', 'size'],
 
   components: {
     'fa-icon': FontAwesomeIcon
+  },
+
+  computed: {
+    style: function() {
+      if (this.size) {
+        return {'font-size': this.size};
+      }
+
+      return {};
+    }
   }
 }
 </script>
