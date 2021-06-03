@@ -1,6 +1,7 @@
 
 <template>
   <div class="os-page-header">
+    <slot name="breadcrumb"></slot>
     <div class="content">
       <div class="left">
         <slot></slot>
@@ -59,5 +60,9 @@
     font-weight: 500;
     line-height: 1.1;
     color: inherit;
+  }
+
+  .os-page-header :deep(.os-breadcrumb + .content) {
+    margin-top: 0px;
   }
 </style>

@@ -1,6 +1,9 @@
 <template>
   <Page>
     <PageHeader>
+      <template #breadcrumb v-if="ctx.group">
+        <Breadcrumb :items="ctx.ugCrumb" />
+      </template>
       <template #default>
         <h3 v-if="!ctx.group">Users</h3>
         <h3 v-else>{{ctx.group.name}}</h3>
@@ -79,6 +82,7 @@ import { format } from 'date-fns';
 import ListView from '@/common/components/ListView.vue';
 import Page from '@/common/components/Page.vue';
 import PageHeader from '@/common/components/PageHeader.vue';
+import Breadcrumb from '@/common/components/Breadcrumb.vue';
 import PageBody from '@/common/components/PageBody.vue';
 import PageToolbar from '@/common/components/PageToolbar.vue';
 import Button from '@/common/components/Button.vue';
@@ -110,6 +114,7 @@ export default {
   components: {
     Page,
     PageHeader,
+    Breadcrumb,
     PageBody,
     PageToolbar,
     Button,
@@ -196,7 +201,9 @@ export default {
         }
       ],
 
-      query: props.filters
+      query: props.filters,
+
+      ugCrumb: [ {url: ui.ngServer + '#/users-groups', label: 'User Groups'} ]
     });
 
     if (props.groupId) {
