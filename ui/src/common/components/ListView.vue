@@ -41,9 +41,28 @@
               </span>
             </cell>
           </form-group>
+
           <form-group>
             <cell :width="12">
               <Button style="width: 100%" label="Clear Filters" @click="clearFilters"/>
+            </cell>
+          </form-group>
+
+          <form-group>
+            <cell :width="12">
+              <os-label class="underlined">Records to Display</os-label>
+            </cell>
+
+            <cell :width="12">
+              <os-radio-button v-show="pageSizeOpts.pageSize" name="pageSize" class="inline"
+                :options="pageSizeOpts.sizes" v-model="pageSizeOpts.pageSize"
+                @change="changePageSize" />
+
+              <div class="input-group" v-show="!pageSizeOpts.pageSize">
+                <input-text md-type="true" v-model="pageSizeOpts.customPageSize" placeholder="Custom value" />
+                <Button label="Go" @click="updatePageSize"/>
+                <Button left-icon="times" @click="clearPageSize"/>
+              </div>
             </cell>
           </form-group>
         </div>
@@ -60,13 +79,15 @@ import Column from 'primevue/column';
 import FormGroup from '@/common/components/FormGroup.vue';
 import Col from '@/common/components/Col.vue';
 import InputText from '@/common/components/InputText.vue';
+import Label from '@/common/components/Label.vue';
 import Dropdown from '@/common/components/Dropdown.vue';
 import Button from '@/common/components/Button.vue';
+import RadioButton from '@/common/components/RadioButton.vue';
 
 export default {
   props: [ 'data', 'columns', 'filters', 'query', 'allowSelection'],
 
-  emits: ['selectedRows', 'filtersUpdated'],
+  emits: ['selectedRows', 'filtersUpdated', 'pageSizeChanged'],
 
   components: {
     'data-table': DataTable,
@@ -75,6 +96,8 @@ export default {
     'cell': Col,
     'input-text': InputText,
     'dropdown': Dropdown,
+    'os-label': Label,
+    'os-radio-button': RadioButton,
     Button
   },
 
@@ -96,7 +119,20 @@ export default {
 
       filterValues: { },
 
-      selectedRows: []
+      selectedRows: [],
+
+      pageSizeOpts: {
+        currentPageSize: 100,
+
+        pageSize: 100,
+
+        sizes: [
+          {caption: '100', value: 100},
+          {caption: '200', value: 200},
+          {caption: '500', value: 500},
+          {caption: 'Custom', value: ''},
+        ]
+      }
     }
   },
 
@@ -138,7 +174,34 @@ export default {
         }
       }
 
-      this.$emit('filtersUpdated', {filters: this.filterValues, uriEncoding: fb});
+      let event = {filters: this.filterValues, uriEncoding: fb, pageSize: this.pageSizeOpts.currentPageSize + 1};
+      this.$emit('filtersUpdated', event);
+    },
+
+    changePageSize: function(input) {
+      let pageSize = +input;
+      if (isNaN(pageSize) || pageSize <= 0 || this.pageSizeOpts.currentPageSize == pageSize) {
+        return;
+      }
+
+      let oldPageSize = this.pageSizeOpts.currentPageSize;
+      this.pageSizeOpts.currentPageSize = pageSize;
+      this.$emit('pageSizeChanged', pageSize);
+      if (this.data.length < oldPageSize && this.data.length < pageSize) {
+        return;
+      }
+
+      this.emitFiltersUpdated();
+    },
+
+    updatePageSize: function() {
+      if (this.pageSizeOpts.customPageSize && !isNaN(+this.pageSizeOpts.customPageSize)) {
+        this.changePageSize(this.pageSizeOpts.customPageSize);
+      }
+    },
+
+    clearPageSize: function() {
+      this.pageSizeOpts.pageSize = this.pageSizeOpts.currentPageSize;
     },
 
     reload: function() {
@@ -153,7 +216,8 @@ export default {
       let columnDefs = this.columns || [];
 
       let result = [];
-      for (let rowIdx = 0; rowIdx < input.length; ++rowIdx) {
+      let length = input.length > this.pageSizeOpts.currentPageSize ? input.length - 1 : input.length;
+      for (let rowIdx = 0; rowIdx < length; ++rowIdx) {
         let row = {rowObject: input[rowIdx]};
 
         for (let colIdx = 0; colIdx < columnDefs.length; ++colIdx) {
@@ -327,5 +391,14 @@ export default {
 .os-table :deep(.os-selection-cb .p-checkbox .p-checkbox-box) {
   height: 15px;
   width: 15px;
+}
+
+.filters .body .input-group {
+  display: flex;
+  align-items: flex-end;
+}
+
+.filters .body .input-group :deep(.os-input-text) {
+  width: 100%;
 }
 </style>

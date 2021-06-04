@@ -9,6 +9,10 @@ class User {
     return http.get('users', params);
   }
 
+  async getUsersCount(filterOpts) {
+    return http.get('users/count', filterOpts || {});
+  }
+
   async bulkUpdate({detail, ids}) {
     if (!ids || ids.length == 0) {
       return [];

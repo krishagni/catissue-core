@@ -4,9 +4,19 @@
       <template #breadcrumb v-if="ctx.group">
         <Breadcrumb :items="ctx.ugCrumb" />
       </template>
-      <template #default>
+
+      <span>
         <h3 v-if="!ctx.group">Users</h3>
         <h3 v-else>{{ctx.group.name}}</h3>
+      </span>
+
+      <template #right>
+        <ListSize
+          :list="ctx.users"
+          :page-size="ctx.pageSize"
+          :list-size="ctx.usersCount"
+          @updateListSize="getUsersCount"
+        />
       </template>
     </PageHeader>
     <PageBody v-if="ctx.inited">
@@ -57,8 +67,8 @@
         :columns="ctx.columns"
         :filters="ctx.filters"
         :query="ctx.query"
-        @filtersUpdated="loadUsers"
         allowSelection="true"
+        @filtersUpdated="loadUsers"
         @selectedRows="onUsersSelection"
         ref="listView"
       >
@@ -79,6 +89,7 @@
 import { reactive, inject } from 'vue';
 import { format } from 'date-fns';
 
+import ListSize from '@/common/components/ListSize.vue';
 import ListView from '@/common/components/ListView.vue';
 import Page from '@/common/components/Page.vue';
 import PageHeader from '@/common/components/PageHeader.vue';
@@ -94,6 +105,7 @@ import userGrpSvc from '@/administrative/services/UserGroup.js';
 import userSvc from '@/administrative/services/User.js';
 
 import alertSvc from '@/common/services/Alerts.js';
+import authSvc from '@/common/services/Authorization.js';
 import exportSvc from '@/common/services/ExportService.js';
 import itemsSvc from '@/common/services/ItemsHolder.js';
 import routerSvc from '@/common/services/Router.js';
@@ -118,6 +130,7 @@ export default {
     PageBody,
     PageToolbar,
     Button,
+    ListSize,
     ListView,
     Menu,
     ConfirmDelete,
@@ -203,6 +216,10 @@ export default {
 
       query: props.filters,
 
+      pageSize: undefined,
+
+      usersCount: -1,
+
       ugCrumb: [ {url: ui.ngServer + '#/users-groups', label: 'User Groups'} ]
     });
 
@@ -233,18 +250,31 @@ export default {
       this.$refs.listView.toggleShowFilters();
     },
 
-    loadUsers: function ({filters, uriEncoding}) {
+    loadUsers: function ({filters, uriEncoding, pageSize}) {
+      this.ctx.filterValues = filters;
+      this.ctx.pageSize = pageSize;
+
       let params = {filters: uriEncoding};
       if (this.ctx.group) {
         params.groupId = this.ctx.group.id;
       }
       routerSvc.ngGoto(undefined, params, {notify: false});
 
-      let opts = Object.assign({}, filters);
+      let opts = Object.assign({maxResults: pageSize}, filters);
       if (this.ctx.group) {
         opts.group = this.ctx.group.name;
       }
       userSvc.getUsers(opts).then(resp => this.ctx.users = resp);
+    },
+
+    getUsersCount: function() {
+      this.ctx.usersCount = -1;
+
+      let opts = Object.assign({}, this.ctx.filterValues);
+      if (this.ctx.group) {
+        opts.group = this.ctx.group.name;
+      }
+      userSvc.getUsersCount(opts).then(resp => this.ctx.usersCount = resp.count);
     },
 
     onUsersSelection: function(selection) {
@@ -384,9 +414,19 @@ export default {
     },
 
     moreOpts: function() {
-      return [
+      let opts = [
         { caption: 'New Announcement', onSelect: () => this.$refs.announcementDialog.open() }
-      ]
+      ];
+
+      if (this.ui.os.appProps.plugins.indexOf('os-extras') && authSvc.isAllowed('institute-admin')) {
+        //
+        // temporary. will go away when first class support for plugin views is implemented
+        //
+        opts.push({ caption: 'Export Login Activity', onSelect: () => this.ngGoto('export-login-audit') });
+        opts.push({ caption: 'Active Users', onSelect: () => this.ngGoto('active-users-report') });
+      }
+
+      return opts;
     }
   }
 }

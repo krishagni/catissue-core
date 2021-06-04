@@ -130,6 +130,7 @@ export default {
   .os-page-header .content-wrapper .content .right {
     float: right;
     width: 20%;
+    text-align: right;
   }
 
   .os-page-header :deep(h3) {
