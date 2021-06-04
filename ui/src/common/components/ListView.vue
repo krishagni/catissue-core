@@ -1,7 +1,17 @@
 <template>
   <div class="os-table os-table-hover" :class="{'show-filters': showFilters}">
+
     <div class="results">
-      <div class="results-inner">
+      <div class="info" v-if="loading || list.length == 0">
+        <div v-show="loading">
+          <os-message type="info"><span>Loading records, please wait for a moment...</span></os-message>
+        </div>
+        <div v-show="!loading && list.length == 0">
+          <os-message type="info"><span>No records to show</span></os-message>
+        </div>
+      </div>
+
+      <div v-else class="results-inner">
         <div v-if="selectedRows.length > 0" class="p-inline-message p-inline-message-info">
           <span v-show="selectedRows.length == 1">1 record selected</span>
           <span v-show="selectedRows.length > 1">{{selectedRows.length}} records selected</span>
@@ -83,9 +93,17 @@ import Label from '@/common/components/Label.vue';
 import Dropdown from '@/common/components/Dropdown.vue';
 import Button from '@/common/components/Button.vue';
 import RadioButton from '@/common/components/RadioButton.vue';
+import Message from '@/common/components/Message.vue';
 
 export default {
-  props: [ 'data', 'columns', 'filters', 'query', 'allowSelection'],
+  props: [
+    'data',
+    'columns',
+    'filters',
+    'query',
+    'allowSelection',
+    'loading'
+  ],
 
   emits: ['selectedRows', 'filtersUpdated', 'pageSizeChanged'],
 
@@ -98,6 +116,7 @@ export default {
     'dropdown': Dropdown,
     'os-label': Label,
     'os-radio-button': RadioButton,
+    'os-message': Message,
     Button
   },
 
@@ -277,6 +296,10 @@ export default {
 
 .os-table.show-filters .results {
   width: 75%;
+}
+
+.os-table .results .info {
+  padding-right: 15px;
 }
 
 .os-table .results .results-inner {

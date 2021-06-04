@@ -67,7 +67,8 @@
         :columns="ctx.columns"
         :filters="ctx.filters"
         :query="ctx.query"
-        allowSelection="true"
+        :allowSelection="true"
+        :loading="ctx.loading"
         @filtersUpdated="loadUsers"
         @selectedRows="onUsersSelection"
         ref="listView"
@@ -251,6 +252,7 @@ export default {
     },
 
     loadUsers: function ({filters, uriEncoding, pageSize}) {
+      this.ctx.loading = true;
       this.ctx.filterValues = filters;
       this.ctx.pageSize = pageSize;
 
@@ -264,7 +266,10 @@ export default {
       if (this.ctx.group) {
         opts.group = this.ctx.group.name;
       }
-      userSvc.getUsers(opts).then(resp => this.ctx.users = resp);
+      userSvc.getUsers(opts).then(resp => {
+        this.ctx.loading = false;
+        this.ctx.users = resp;
+      });
     },
 
     getUsersCount: function() {
