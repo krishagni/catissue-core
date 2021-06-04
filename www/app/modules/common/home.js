@@ -1,5 +1,5 @@
 angular.module('openspecimen')
-  .factory('HomePageSvc', function($q, $translate, AuthorizationService) {
+  .factory('HomePageSvc', function($q, $state, $translate, AuthorizationService) {
     var pageCards = [];
 
     var sorted = false;
@@ -137,6 +137,22 @@ angular.module('openspecimen')
       );
     }
 
+    function getMenuItems() {
+      return loadCards().then(
+        function(cards) {
+          return cards.map(
+            function(card) {
+              var result = angular.extend({}, card);
+              if (!result.href) {
+                result.href = $state.href(result.sref, {}, {absolute: true});
+              }
+              return result;
+            }
+          );
+        }
+      );
+    }
+
     return {
       registerCard: registerCard,
 
@@ -148,7 +164,9 @@ angular.module('openspecimen')
 
       registerUserWidgets: registerUserWidgets,
 
-      getUserWidgets: getUserWidgets
+      getUserWidgets: getUserWidgets,
+
+      getMenuItems: getMenuItems
     }
   })
 

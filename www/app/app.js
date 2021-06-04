@@ -333,7 +333,8 @@ osApp.config(function(
   })
   .run(function(
     $rootScope, $window, $document, $http, $cookies, $q,  $state, $translate, $translatePartialLoader,
-    AuthService, AuthorizationService, LocationChangeListener, ApiUtil, Setting, PluginReg, Util, ItemsHolder) {
+    AuthService, AuthorizationService, HomePageSvc, LocationChangeListener,
+    ApiUtil, Setting, PluginReg, Util, ItemsHolder) {
 
     function isRedirectAllowed(st) {
       return !st.data || st.data.redirect !== false;
@@ -433,6 +434,12 @@ osApp.config(function(
         }
 
         window.frames['vueapp'].postMessage({op: 'getUserDetails', resp: resp}, '*');
+      } else if (data.op == 'getAppMenuItems') {
+        HomePageSvc.getMenuItems().then(
+          function(items) {
+            window.frames['vueapp'].postMessage({op: 'getAppMenuItems', resp: items}, '*');
+          }
+        );
       } else if (data.op == 'changeRoute') {
         var dest = data.payload;
         var params = angular.extend(angular.extend({}, $state.params), dest.params || {});
