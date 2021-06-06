@@ -23,7 +23,8 @@ angular.module('os.administrative.user.list', ['os.administrative.models'])
       };
 
       if (ctx.vue) {
-        var url = 'http://localhost:8081/#/';
+        //var url = 'http://localhost:8081/#/';
+        var url = 'vue-app/#/';
         if ($stateParams.view == 'users-list') {
           url += 'users?';
           angular.forEach($stateParams,

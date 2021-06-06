@@ -284,6 +284,12 @@ task create_war(type: War) {
   from ('./build/') {
     include 'form-designer/**'
   }
+
+  from ('./ui/dist') {
+    include '**/**'
+
+    into 'vue-app/'
+  }
   
   manifest {
     attributes(
@@ -305,7 +311,30 @@ task grunt_build(type: Exec) {
   commandLine grunt_cmd, 'build'
 }
 
-create_war.dependsOn unzip_form_designer, grunt_build
+task vue_backup_src(type: Exec) {
+  workingDir './ui'
+  commandLine 'mv', 'src', 'src_bk'
+}
+
+task vue_install_dependencies(type: Exec) {
+  workingDir './ui'
+  commandLine 'npm', 'install'
+}
+
+task vue_restore_src(type: Exec) {
+  workingDir './ui'
+  commandLine 'mv', 'src_bk', 'src'
+}
+
+task vue_build(type: Exec) {
+  workingDir './ui'
+  commandLine 'npm', 'run', 'build'
+}
+
+vue_install_dependencies.dependsOn vue_backup_src
+vue_restore_src.dependsOn vue_install_dependencies
+vue_build.dependsOn vue_restore_src
+create_war.dependsOn unzip_form_designer, grunt_build, vue_build
 build.dependsOn create_war
 
 apply from: envScript
